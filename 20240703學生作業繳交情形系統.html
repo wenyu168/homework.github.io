@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生作業繳交情形一覽表</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.4;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        h1 { font-size: 24px; }
+        h2 { font-size: 20px; }
+        h3 { font-size: 16px; }
+        label {
+            display: inline-block;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        input[type="text"], input[type="date"], input[type="number"] {
+            width: calc(100% - 16px);
+            padding: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .homework-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+        }
+        .homework-section {
+            flex: 0 1 calc(33.333% - 15px);
+            min-width: 500px;
+        }
+        .student-numbers {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            font-size: 15px;
+        }
+        .student-number {
+            background-color: #c8e6c9;
+            border: 1px solid #81c784;
+            border-radius: 4px;
+            padding: 3px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .student-number.not-submitted {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+        .student-number.needs-correction {
+            background-color: #f39c12;
+            color: white;
+            border-color: #d35400;
+        }
+        .status-display {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight:bold;
+        }
+        .status-display p {
+            margin: 3px 0;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .button-export-excel {
+            background-color: #27ae60;
+            color: white;
+        }
+        .button-export-image {
+            background-color: #2980b9;
+            color: white;
+        }
+        .button-clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .button:hover {
+            opacity: 0.8;
+        }
+        .homework-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .homework-button {
+            padding: 5px 10px;
+            margin-left: 5px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .homework-button-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .homework-button-clear {
+            background-color: #f39c12;
+            color: white;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="card">
+        <h1>學生作業繳交情形一覽表</h1>
+        <label for="date">日期：</label>
+        <input type="date" id="date" required>
+        
+        <label for="homework-count">本日作業數：</label>
+        <input type="number" id="homework-count" min="1" max="9" value="3" onchange="updateHomeworkSections()">
+    </div>
+    
+    <div id="homework-container" class="homework-container"></div>
+    
+    <div class="card">
+        <div class="button-container">
+            <button class="button button-export-excel" onclick="exportToExcel()">匯出成Excel</button>
+            <button class="button button-export-image" onclick="exportToPNG()">匯出成圖片</button>
+            <button class="button button-clear" onclick="clearAll()">全部清除</button>
+             黃文玉設計2024/07/03
+        </div>
+    </div>
+
+    <script>
+
+        function createHomeworkSection(index) {
+            const section = document.createElement('div');
+            section.className = 'card homework-section';
+            section.innerHTML = `
+                <h2>作業 ${index + 1}</h2>
+                 <label for="homework-name-${index}">作業名稱：</label>
+        <select id="homework-name-${index}" required>
+            <option value="">請選擇作業</option>
+            <option value="國習">國習</option>
+            <option value="數習">數習</option>
+            <option value="社習">社習</option>
+            <option value="自習">自習</option>
+        </select>
+                <h3>學生座號       
+              <button class="homework-button homework-button-clear" onclick="clearHomework(${index})">清除</button></h3>
+                <div class="student-numbers" id="student-numbers-${index}"></div>
+                <div class="status-display">
+                    <p id="not-submitted-${index}">未繳交座號：</p>
+                    <p id="needs-correction-${index}">待訂正座號：</p>
+                </div>
+            `;
+            return section;
+        }
+
+        function createStudentNumbers(container, index) {
+
+           $student_no=35;    //此數字請修改為班級最後一個座號
+
+            for (let i = 1; i <= $student_no; i++) {
+                const div = document.createElement('div');
+                div.className = 'student-number';
+                div.textContent = i;
+                div.onclick = function() {
+                    if (this.classList.contains('not-submitted')) {
+                        this.classList.remove('not-submitted');
+                        this.classList.add('needs-correction');
+                    } else if (this.classList.contains('needs-correction')) {
+                        this.classList.remove('needs-correction');
+                    } else {
+                        this.classList.add('not-submitted');
+                    }
+                    updateStatusDisplay(index);
+                };
+                container.appendChild(div);
+            }
+        }
+
+        function updateStatusDisplay(index) {
+            const studentNumbers = document.querySelectorAll(`#student-numbers-${index} .student-number`);
+            let notSubmitted = [];
+            let needsCorrection = [];
+
+            studentNumbers.forEach(student => {
+                if (student.classList.contains('not-submitted')) {
+                    notSubmitted.push(student.textContent);
+                } else if (student.classList.contains('needs-correction')) {
+                    needsCorrection.push(student.textContent);
+                }
+            });
+
+            document.getElementById(`not-submitted-${index}`).textContent = '未繳交座號：' + notSubmitted.join(', ');
+            document.getElementById(`needs-correction-${index}`).textContent = '待訂正座號：' + needsCorrection.join(', ');
+        }
+
+        function updateHomeworkSections() {
+            const count = parseInt(document.getElementById('homework-count').value);
+            const container = document.getElementById('homework-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < count; i++) {
+                const section = createHomeworkSection(i);
+                container.appendChild(section);
+                createStudentNumbers(document.getElementById(`student-numbers-${i}`), i);
+                updateStatusDisplay(i);
+            }
+        }
+
+ 
+        function clearHomework(index) {
+            const studentNumbers = document.querySelectorAll(`#student-numbers-${index} .student-number`);
+            studentNumbers.forEach(student => {
+                student.classList.remove('not-submitted', 'needs-correction');
+            });
+            updateStatusDisplay(index);
+        }
+
+ function exportToExcel() {
+    const date = document.getElementById('date').value;
+    const homeworkCount = parseInt(document.getElementById('homework-count').value);
+    
+    let data = [['學生座號']];
+    
+    // 添加作業名稱到第一行
+    for (let i = 0; i < homeworkCount; i++) {
+        const homeworkName = document.getElementById(`homework-name-${i}`).value || `作業 ${i + 1}`;
+        data[0].push(homeworkName);
+    }
+    
+    // 添加學生數據
+    for (let studentNo = 1; studentNo <= $student_no; studentNo++) {
+        let row = [studentNo];
+        for (let i = 0; i < homeworkCount; i++) {
+            const studentElement = document.querySelector(`#student-numbers-${i} .student-number:nth-child(${studentNo})`);
+            if (studentElement.classList.contains('not-submitted')) {
+                row.push(2);  // 未繳交
+            } else if (studentElement.classList.contains('needs-correction')) {
+                row.push(3);  // 待訂正
+            } else {
+                row.push(1);  // 正常
+            }
+        }
+        data.push(row);
+    }
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+   
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, date);
+    
+    XLSX.writeFile(wb, `${date}_學生作業繳交情形.xlsx`);
+}
+
+        function exportToPNG() {
+           html2canvas(document.body).then(function(canvas) {
+           var link = document.createElement('a');
+           link.download = '學生作業繳交情形.png';
+           link.href = canvas.toDataURL('image/png');
+           link.click();
+           });
+       }
+
+        function clearAll() {
+            const studentNumbers = document.querySelectorAll('.student-number');
+            studentNumbers.forEach(student => {
+                student.classList.remove('not-submitted', 'needs-correction');
+            });
+            const count = parseInt(document.getElementById('homework-count').value);
+            for (let i = 0; i < count; i++) {
+                updateStatusDisplay(i);
+            }
+        }
+
+function setDefaultDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    document.getElementById('date').value = formattedDate;
+}
+
+
+        window.onload = function() {
+            setDefaultDate();
+            updateHomeworkSections();
+        }
+    </script>
+</body>
+</html>
