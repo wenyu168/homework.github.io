@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正向鼓勵小天地</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #ffc0cb, #fffacd);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #8a2be2;
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .symbols-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 360px;
+        }
+        .symbol {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            font-size: 2em;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .symbol:hover, .symbol:active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        #quoteDisplay {
+            background-color: aquamarine;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3em;
+            }
+            .symbols-container {
+                grid-template-columns: repeat(5, 1fr);
+                max-width: 600px;
+                gap: 20px;
+            }
+            .symbol {
+                font-size: 2.5em;
+            }
+            #quoteDisplay {
+                font-size: 1.5em;
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>正向鼓勵小天地</h1>
+    <div class="symbols-container">
+        <button class="symbol" onclick="showQuote('問號')">❓</button>
+        <button class="symbol" onclick="showQuote('驚嘆號')">❗</button>
+        <button class="symbol" onclick="showQuote('笑臉')">😊</button>
+        <button class="symbol" onclick="showQuote('太陽')">☀️</button>
+        <button class="symbol" onclick="showQuote('蘋果')">🍎</button>
+        <button class="symbol" onclick="showQuote('愛心')">❤️</button>
+        <button class="symbol" onclick="showQuote('音符')">🎵</button>
+        <button class="symbol" onclick="showQuote('花朵')">🌸</button>
+        <button class="symbol" onclick="showQuote('排球')">🏐</button>
+        <button class="symbol" onclick="showQuote('燈泡')">💡</button>
+        <button class="symbol" onclick="showQuote('鉛筆')">✏️</button>
+        <button class="symbol" onclick="showQuote('汽車')">🚗</button>
+        <button class="symbol" onclick="showQuote('彩虹')">🌈</button>
+        <button class="symbol" onclick="showQuote('高山')">⛰️</button>
+        <button class="symbol" onclick="showQuote('溪流')">🏞️</button>
+    </div>
+    <div id="quoteDisplay">請挑選上面的圖案，會有驚喜哦！</div>
+
+       <script>
+        const quotes = {
+            '問號': [
+                "好奇是天才的開始。 - 愛因斯坦",
+                "提問是智慧的開端。 - 蘇格拉底",
+                "疑問是知識的種子。 - 培根",
+                "問題不是阻礙，而是通向答案的道路。 - 約翰·杜威",
+                "保持懷疑精神，是邁向真理的第一步。 - 笛卡爾"
+            ],
+            '驚嘆號': [
+                "驚奇是智慧的開始。 - 蘇格拉底",
+                "保持對生活的驚嘆，你會發現生活充滿奇蹟。 - 馬克思",
+                "每一天都是新的冒險。 - 海倫·凱勒",
+                "驚嘆是最美麗的情感。 - 愛因斯坦",
+                "生活中充滿了值得驚嘆的事物。 - 亞里士多德"
+            ],
+            '笑臉': [
+                "笑容是最好的化妝品。 - 奧黛麗·赫本",
+                "笑是身體的運動，憂愁是心靈的運動。 - 雨果",
+                "微笑可以改變世界，但不要讓世界改變你的微笑。 - 康納",
+                "一個真誠的微笑勝過千言萬語。 - 達爾文",
+                "笑是打開心靈之窗的鑰匙。 - 蕭伯納"
+            ],
+            '太陽': [
+                "太陽不管照射到哪裡，那裡就是我的家。 - 塞內加",
+                "讓你的笑容像陽光一樣燦爛。 - 莎士比亞",
+                "陽光總在風雨後。 - 郁達夫",
+                "心若向陽，無處不春。 - 冰心",
+                "太陽每天都是新的。 - 赫拉克利特"
+            ],
+            '蘋果': [
+                "一天一蘋果，醫生遠離我。 - 英國諺語",
+                "知識之樹上的蘋果永遠長不夠。 - 喬治·薩維爾",
+                "創新像是在黑暗中尋找燈光。你可能會跌倒九次，但第十次你會發現電燈開關。 - 湯姆·凱利",
+                "簡單就是最終的複雜。 - 達·芬奇",
+                "保持飢餓，保持愚蠢。 - 史蒂夫·賈伯斯"
+            ],
+            '愛心': [
+                "愛是生命中最好的裝飾品。 - 羅伯特·布朗寧",
+                "愛不是佔有，而是欣賞。 - 泰戈爾",
+                "愛是一種需要被培養的藝術。 - 艾瑞克·弗洛姆",
+                "愛是生命中唯一能使你變得更加完整的東西。 - 奧修",
+                "真愛是靈魂對靈魂的傾訴。 - 雨果"
+            ],
+            '音符': [
+                "音樂是上帝賜予人類最偉大的禮物之一。 - 馬丁·路德",
+                "音樂是靈魂的語言。 - 柏拉圖",
+                "沒有音樂，生活將是一個錯誤。 - 尼采",
+                "音樂能洗滌人的心靈。 - 亞里士多德",
+                "音樂是一種比語言更古老的交流方式。 - 約翰·鮑威爾"
+            ],
+            '花朵': [
+                "花朵是大地的笑容。 - 拉爾夫·沃爾多·愛默生",
+                "就像花朵一樣，讓你的美麗成為你獨特的標記。 - 奧斯卡·王爾德",
+                "即使是最小的花朵也能給世界帶來美麗。 - 漢斯·克里斯蒂安·安徒生",
+                "花開不是為了爭艷，而是為了綻放自己。 - 泰戈爾",
+                "生命如花朵，既脆弱又堅強。 - 法布爾"
+            ],
+            '排球': [
+                "團隊合作能讓平凡的人做出非凡的事。 - 約翰·伍登",
+                "勝利屬於最堅持的人。 - 拿破崙·希爾",
+                "成功不是偶然的，它是努力、堅持、學習、犧牲的結果。 - 佩萊",
+                "沒有完美的團隊，只有完美的團隊精神。 - 道格·史密斯",
+                "團隊的力量大於個人力量的總和。 - 菲爾·傑克遜"
+            ],
+            '燈泡': [
+                "創意就是把已知的東西重新組合。 - 亨利·福特",
+                "天才是1%的靈感加上99%的汗水。 - 愛迪生",
+                "你的想像力就是你的預覽，人生即將上演的景象。 - 愛因斯坦",
+                "創新始於一個想法，改變世界。 - 史蒂夫·喬布斯",
+                "每個偉大的想法都始於一個小小的火花。 - 拉爾夫·沃爾多·愛默生"
+            ],
+            '鉛筆': [
+                "寫作是思考的另一種方式。 - 卡爾維諾",
+                "文字的力量是無窮的。 - 柏拉圖",
+                "一支筆可以改變世界。 - 馬丁·路德·金",
+                "寫作是一種探索。 - E.M.福斯特",
+                "筆是思想的舌頭。 - 米格爾·德·塞萬提斯"
+            ],
+            '汽車': [
+                "人生就像駕駛，看著前方，偶爾瞥瞥後視鏡。 - 道格拉斯·亞當斯",
+                "生命就像騎自行車。要保持平衡就要保持運動。 - 愛因斯坦",
+                "成功的秘訣是開始。 - 馬克·吐溫",
+                "不要只盯著路面，要看遠方。 - 亨利·福特",
+                "人生就像一場公路旅行，享受沿途的風景。 - 威爾·羅傑斯"
+            ],
+            '彩虹': [
+                "在每場風暴的盡頭，總有一道彩虹在等待。 - 吉爾伯特·貝克",
+                "生命中最美好的事物往往在風雨過後出現。 - 凱倫·布利克森",
+                "彩虹的美麗不在於它的七種顏色，而在於它的和諧。 - 英格麗·尼爾森",
+                "追逐彩虹的人，自己也會發光。 - 珍·古道爾",
+                "彩虹是大自然的微笑。 - 約翰·基茨"
+            ],
+            '高山': [
+                "山不辭贈，故能成其高。 - 老子",
+                "登高必自卑，行遠必自邇。 - 荀子",
+                "只有登上山頂，才能看到更遠的風景。 - 松下幸之助",
+                "征服自己比征服別人更偉大。 - 柏拉圖",
+                "山的高度不能阻擋攀登者的熱情。 - 威廉·莎士比亞"
+            ],
+            '溪流': [
+                "生命如同流水，只有在不斷流動中才能保持清澈。 - 但丁",
+                "溪水潺潺，如人生般不息。 - 赫拉克利特",
+                "小溪匯成大河，涓滴積成江海。 - 奧維德",
+                "順流而下是錯誤的，要逆流而上。 - 亨利·大衛·梭羅",
+                "如果你想到達海洋，就必須沿著河流前進。 - 香奈兒"
+            ]
+        };
+
+        function showQuote(symbol) {
+            const symbolQuotes = quotes[symbol];
+            const randomQuote = symbolQuotes[Math.floor(Math.random() * symbolQuotes.length)];
+            document.getElementById('quoteDisplay').textContent = randomQuote;
+        }
+    </script>
+</body>
+</html>
