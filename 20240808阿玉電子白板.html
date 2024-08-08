@@ -1,0 +1,670 @@
+<html><head><base href="https://請保留本網頁的所有功能，文字大小的值從8到160，每次增加4">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電子白板 - 進階版</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+  }
+  .whiteboard-container {
+    width: 90%;
+    max-width: 1200px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #whiteboard {
+    width: 100%;
+    height: 600px;
+    cursor: crosshair;
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #e6f3ff;
+    border-bottom: 2px solid #3498db;
+    overflow-x: auto;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .tool {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #3498db;
+    background-color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+  .tool:hover {
+    background-color: #3498db;
+    color: white;
+  }
+  .tool.active {
+    background-color: #3498db;
+    color: white;
+  }
+  .color-picker {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .color-picker::-webkit-color-swatch {
+    border-radius: 50%;
+    border: 1px solid #3498db;
+  }
+  .color-picker::-moz-color-swatch {
+    border-radius: 50%;
+    border: 1px solid #3498db;
+  }
+  #sizeSlider, #opacitySlider {
+    width: 80px;
+    margin: 0 5px;
+    vertical-align: middle;
+  }
+  .size-label, .color-label, .opacity-label {
+    margin-right: 5px;
+    font-size: 14px;
+  }
+  #fontSizeSelect {
+    margin-left: 5px;
+    padding: 3px;
+    font-size: 14px;
+    border: 1px solid #3498db;
+    border-radius: 5px;
+  }
+  .tool-group {
+    display: flex;
+    align-items: center;
+  }
+  #shapeSelect, #exportSelect {
+    padding: 3px 5px;
+    margin: 0 5px;
+    border: 1px solid #3498db;
+    background-color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+  }
+  #shapeSelect:hover, #exportSelect:hover {
+    background-color: #3498db;
+    color: white;
+  }
+  #undoBtn, #redoBtn {
+    font-size: 14px;
+    padding: 5px 10px;
+  }
+  #undoBtn:disabled, #redoBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  #shapeSelect option {
+    padding-left: 25px;
+    position: relative;
+  }
+  #shapeSelect option::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+  #shapeSelect option[value="rectangle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect x='1' y='1' width='14' height='14' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+  }
+  #shapeSelect option[value="triangle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M8 2 L2 14 L14 14 Z' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+  }
+  #shapeSelect option[value="circle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='7' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+  }
+  #shapeSelect option[value="filledRectangle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect x='1' y='1' width='14' height='14' fill='red' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+  }
+  #shapeSelect option[value="filledTriangle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M8 2 L2 14 L14 14 Z' fill='red' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+  }
+  #shapeSelect option[value="filledCircle"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='7' fill='red' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+  }
+  .tabs {
+    display: flex;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 5px 0;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    margin-right: 2px;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+  .tab.active {
+    background-color: white;
+    border-bottom: 1px solid white;
+    margin-bottom: -1px;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  .new-tab-btn, .copy-canvas-btn {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px 5px 0 0;
+    margin-left: 2px;
+    font-size: 14px;
+  }
+  .copy-canvas-btn {
+    background-color: #3498db;
+  }
+</style>
+</head>
+<body>
+<div class="whiteboard-container">
+  <div class="toolbar">
+    <select id="shapeSelect" class="tool">
+      <option value="pencil">✏️ 鉛筆</option>
+      <option value="line">📏 直線</option>
+      <option value="rectangle">矩形(外框)</option>
+      <option value="triangle">三角形(外框)</option>
+      <option value="circle">圓形(外框)</option>
+      <option value="filledRectangle">矩形(填滿)</option>
+      <option value="filledTriangle">三角形(填滿)</option>
+      <option value="filledCircle">圓形(填滿)</option>
+    </select>
+    <button class="tool" id="eraser">🧽 橡皮擦</button>
+    <div class="tool-group">
+      <button class="tool" id="text">🔤 文字</button>
+      <select id="fontSizeSelect"></select>
+    </div>
+    <span class="color-label">顏色:</span>
+    <input type="color" id="colorPicker" class="color-picker" value="#000000">
+    <span class="opacity-label">透明度:</span>
+    <input type="range" id="opacitySlider" min="0" max="100" value="100">
+    <span class="size-label">粗細:</span>
+    <input type="range" id="sizeSlider" min="1" max="50" value="2">
+    <span class="color-label">背景:</span>
+    <input type="color" id="bgColorPicker" class="color-picker" value="#ffffff">
+    <button class="tool" id="clear">🗑️ 清除</button>
+    <button class="tool" id="pasteImage">📎 貼圖</button>
+    <button class="tool" id="undoBtn" disabled>↩️</button>
+    <button class="tool" id="redoBtn" disabled>↪️</button>
+    <select id="exportSelect" class="tool">
+      <option value="">匯出...</option>
+      <option value="exportImage">📸 匯出圖片</option>
+      <option value="exportPDF">📄 匯出PDF</option>
+    </select>
+  </div>
+  <div class="tabs" id="tabContainer">
+    <button class="new-tab-btn" id="newTabBtn">+ 新增畫布</button>
+    <button class="copy-canvas-btn" id="copyCanvasBtn">📋 複製畫布</button>
+  </div>
+  <canvas id="whiteboard"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  const canvas = document.getElementById('whiteboard');
+  const ctx = canvas.getContext('2d');
+  const eraserBtn = document.getElementById('eraser');
+  const textBtn = document.getElementById('text');
+  const shapeSelect = document.getElementById('shapeSelect');
+  const colorPicker = document.getElementById('colorPicker');
+  const bgColorPicker = document.getElementById('bgColorPicker');
+  const clearBtn = document.getElementById('clear');
+  const sizeSlider = document.getElementById('sizeSlider');
+  const opacitySlider = document.getElementById('opacitySlider');
+  const fontSizeSelect = document.getElementById('fontSizeSelect');
+  const pasteImageBtn = document.getElementById('pasteImage');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const tabContainer = document.getElementById('tabContainer');
+  const newTabBtn = document.getElementById('newTabBtn');
+  const exportSelect = document.getElementById('exportSelect');
+  const copyCanvasBtn = document.getElementById('copyCanvasBtn');
+
+  let isDrawing = false;
+  let currentTool = 'pencil';
+  let currentColor = '#000000';
+  let currentSize = 2;
+  let currentOpacity = 1;
+  let currentFontSize = 60;
+  let bgColor = '#ffffff';
+  let canvases = [];
+  let currentTabIndex = 0;
+  let startX, startY;
+  let undoStack = [];
+  let redoStack = [];
+
+  function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 600;
+    drawBackground();
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  // 更新文字大小選項
+  fontSizeSelect.innerHTML = '';
+  for (let i = 8; i <= 160; i += 4) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i + 'px';
+    fontSizeSelect.appendChild(option);
+  }
+  fontSizeSelect.value = currentFontSize;
+
+  function drawBackground() {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function setActiveTool(tool) {
+    currentTool = tool;
+    [eraserBtn, textBtn].forEach(btn => btn.classList.remove('active'));
+    if (tool === 'eraser' || tool === 'text') {
+      document.getElementById(tool).classList.add('active');
+    }
+    shapeSelect.value = tool;
+  }
+
+  eraserBtn.addEventListener('click', () => setActiveTool('eraser'));
+  textBtn.addEventListener('click', () => setActiveTool('text'));
+  shapeSelect.addEventListener('change', (e) => setActiveTool(e.target.value));
+
+  colorPicker.addEventListener('input', (e) => currentColor = e.target.value);
+  bgColorPicker.addEventListener('input', (e) => {
+    bgColor = e.target.value;
+    drawBackground();
+    updateCanvas();
+  });
+  clearBtn.addEventListener('click', () => {
+    saveState();
+    drawBackground();
+    updateCanvas();
+  });
+  sizeSlider.addEventListener('input', (e) => currentSize = parseInt(e.target.value));
+  opacitySlider.addEventListener('input', (e) => currentOpacity = parseInt(e.target.value) / 100);
+  fontSizeSelect.addEventListener('change', (e) => {
+    currentFontSize = parseInt(e.target.value);
+    setActiveTool('text');
+  });
+
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDrawing);
+  canvas.addEventListener('mouseout', stopDrawing);
+
+  function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    saveState();
+    draw(e);
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = currentOpacity;
+
+    if (currentTool === 'eraser') {
+      ctx.strokeStyle = bgColor;
+    } else {
+      ctx.strokeStyle = currentColor;
+      ctx.fillStyle = currentColor;
+    }
+
+    switch(currentTool) {
+      case 'pencil':
+      case 'eraser':
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        break;
+      case 'line':
+      case 'rectangle':
+      case 'triangle':
+      case 'circle':
+      case 'filledRectangle':
+      case 'filledTriangle':
+      case 'filledCircle':
+        ctx.putImageData(canvases[currentTabIndex].data, 0, 0);
+        switch(currentTool) {
+          case 'line':
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            break;
+          case 'rectangle':
+            ctx.beginPath();
+            ctx.rect(startX, startY, x - startX, y - startY);
+            ctx.stroke();
+            break;
+          case 'triangle':
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(x, y);
+            ctx.lineTo(startX - (x - startX), y);
+            ctx.closePath();
+            ctx.stroke();
+            break;
+          case 'circle':
+          case 'filledCircle':
+            ctx.beginPath();
+            const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            if (currentTool === 'circle') {
+              ctx.stroke();
+            } else {
+              ctx.fill();
+            }
+            break;
+          case 'filledRectangle':
+            ctx.fillRect(startX, startY, x - startX, y - startY);
+            break;
+          case 'filledTriangle':
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(x, y);
+            ctx.lineTo(startX - (x - startX), y);
+            ctx.closePath();
+            ctx.fill();
+            break;
+        }
+        break;
+    }
+  }
+
+  function stopDrawing() {
+    if (isDrawing) {
+      isDrawing = false;
+      ctx.beginPath();
+      updateCanvas();
+    }
+  }
+
+  canvas.addEventListener('click', (e) => {
+    if (currentTool === 'text') {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.style.position = 'absolute';
+      input.style.left = `${e.clientX}px`;
+      input.style.top = `${e.clientY}px`;
+      input.style.font = `${currentFontSize}px Arial`;
+      input.style.color = currentColor;
+      input.style.background = 'transparent';
+      input.style.border = 'none';
+      input.style.outline = 'none';
+      
+      document.body.appendChild(input);
+      input.focus();
+
+      input.addEventListener('blur', () => {
+        if (input.value) {
+          saveState();
+          ctx.font = `${currentFontSize}px Arial`;
+          ctx.fillStyle = currentColor;
+          ctx.globalAlpha = currentOpacity;
+          ctx.fillText(input.value, x, y + currentFontSize);
+          updateCanvas();
+        }
+        document.body.removeChild(input);
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          input.blur();
+        }
+      });
+    }
+  });
+
+  function addNewTab() {
+    const newCanvas = {
+      data: ctx.createImageData(canvas.width, canvas.height),
+      bgColor: '#ffffff'
+    };
+    canvases.push(newCanvas);
+    createTab(canvases.length - 1);
+    switchTab(canvases.length - 1);
+  }
+
+  function createTab(index) {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.textContent = `第 ${index + 1} 頁`;
+    tab.addEventListener('click', () => switchTab(index));
+    tabContainer.insertBefore(tab, newTabBtn);
+  }
+
+  function switchTab(index) {
+    updateCanvas();
+    currentTabIndex = index;
+    bgColor = canvases[index].bgColor;
+    bgColorPicker.value = bgColor;
+    drawBackground();
+    if (canvases[index].data) {
+      ctx.putImageData(canvases[index].data, 0, 0);
+    }
+    updateActiveTab();
+    undoStack = [];
+    redoStack = [];
+    updateUndoRedoButtons();
+  }
+
+  function updateCanvas() {
+    canvases[currentTabIndex] = {
+      data: ctx.getImageData(0, 0, canvas.width, canvas.height),
+      bgColor: bgColor
+    };
+  }
+
+  function updateActiveTab() {
+    const tabs = tabContainer.getElementsByClassName('tab');
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].classList.toggle('active', i === currentTabIndex);
+    }
+  }
+
+  pasteImageBtn.addEventListener('click', () => {
+    navigator.clipboard.read().then(clipboardItems => {
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type.startsWith('image/')) {
+            clipboardItem.getType(type).then(blob => {
+              const img = new Image();
+              img.onload = () => {
+                saveState();
+                const scale = Math.min(
+                  canvas.width / img.width,
+                  canvas.height / img.height
+                );
+                const width = img.width * scale;
+                const height = img.height * scale;
+                const x = (canvas.width - width) / 2;
+                const y = (canvas.height - height) / 2;
+
+                ctx.globalAlpha = currentOpacity;
+                ctx.drawImage(img, x, y, width, height);
+                updateCanvas();
+              };
+              img.src = URL.createObjectURL(blob);
+            });
+            return;
+          }
+        }
+      }
+    }).catch(err => {
+      console.error('無法讀取剪貼簿內容:', err);
+      alert('無法讀取剪貼簿內容。請確保您已複製了圖片。');
+    });
+  });
+
+  newTabBtn.addEventListener('click', addNewTab);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'v') {
+      e.preventDefault();
+      pasteImageBtn.click();
+    }
+    if (e.ctrlKey && e.key === 'z') {
+      e.preventDefault();
+      undo();
+    }
+    if (e.ctrlKey && e.key === 'y') {
+      e.preventDefault();
+      redo();
+    }
+  });
+
+  function undo() {
+    if (undoStack.length > 0) {
+      const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      redoStack.push(currentState);
+      const previousState = undoStack.pop();
+      ctx.putImageData(previousState, 0, 0);
+      updateCanvas();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function redo() {
+    if (redoStack.length > 0) {
+      const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStack.push(currentState);
+      const nextState = redoStack.pop();
+      ctx.putImageData(nextState, 0, 0);
+      updateCanvas();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function saveState() {
+    const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    undoStack.push(currentState);
+    redoStack = [];
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+
+  undoBtn.addEventListener('click', undo);
+  redoBtn.addEventListener('click', redo);
+
+  exportSelect.addEventListener('change', (e) => {
+    if (e.target.value === 'exportImage') {
+      exportImage();
+    } else if (e.target.value === 'exportPDF') {
+      exportPDF();
+    }
+    e.target.value = ''; // Reset the select after action
+  });
+
+  function exportImage() {
+    const link = document.createElement('a');
+    link.download = `whiteboard_page_${currentTabIndex + 1}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('l', 'px', [canvas.width, canvas.height]);
+
+    canvases.forEach((canvasData, index) => {
+      if (index > 0) {
+        pdf.addPage();
+      }
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.fillStyle = canvasData.bgColor;
+      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCtx.putImageData(canvasData.data, 0, 0);
+
+      const imgData = tempCanvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    });
+
+    pdf.save('whiteboard.pdf');
+  }
+
+  copyCanvasBtn.addEventListener('click', () => {
+    saveState();
+    const newCanvas = {
+      data: ctx.getImageData(0, 0, canvas.width, canvas.height),
+      bgColor: bgColor
+    };
+    canvases.splice(currentTabIndex + 1, 0, newCanvas);
+    createTab(currentTabIndex + 1);
+    switchTab(currentTabIndex + 1);
+    updateTabNames();
+  });
+
+  function updateTabNames() {
+    const tabs = tabContainer.getElementsByClassName('tab');
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].textContent = `第 ${i + 1} 頁`;
+    }
+  }
+
+  addNewTab();
+</script>
+</body></html>
