@@ -1,4 +1,4 @@
-<html><head><base href="https://請保留本網頁的所有功能，並且畫面不會因文字的字體大而移動">
+<html><head><base href="https://請保留本網頁的所有功能，文字大小的值從8到160，每次增加4">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>電子白板 - 進階版</title>
@@ -194,15 +194,6 @@
   .copy-canvas-btn {
     background-color: #3498db;
   }
-  #textInput {
-    position: absolute;
-    display: none;
-    font: 14px Arial;
-    padding: 2px;
-    border: 1px solid #ccc;
-    background: rgba(255, 255, 255, 0.8);
-    z-index: 1000;
-  }
 </style>
 </head>
 <body>
@@ -247,7 +238,6 @@
   </div>
   <canvas id="whiteboard"></canvas>
 </div>
-<textarea id="textInput"></textarea>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -269,7 +259,6 @@
   const newTabBtn = document.getElementById('newTabBtn');
   const exportSelect = document.getElementById('exportSelect');
   const copyCanvasBtn = document.getElementById('copyCanvasBtn');
-  const textInput = document.getElementById('textInput');
 
   let isDrawing = false;
   let currentTool = 'pencil';
@@ -448,43 +437,35 @@
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      textInput.style.display = 'block';
-      textInput.style.left = `${e.clientX}px`;
-      textInput.style.top = `${e.clientY}px`;
-      textInput.style.font = `${currentFontSize}px Arial`;
-      textInput.style.color = currentColor;
-      textInput.focus();
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.style.position = 'absolute';
+      input.style.left = `${e.clientX}px`;
+      input.style.top = `${e.clientY}px`;
+      input.style.font = `${currentFontSize}px Arial`;
+      input.style.color = currentColor;
+      input.style.background = 'transparent';
+      input.style.border = 'none';
+      input.style.outline = 'none';
+      
+      document.body.appendChild(input);
+      input.focus();
 
-      function handleTextInput() {
-        if (textInput.value) {
+      input.addEventListener('blur', () => {
+        if (input.value) {
           saveState();
           ctx.font = `${currentFontSize}px Arial`;
           ctx.fillStyle = currentColor;
           ctx.globalAlpha = currentOpacity;
-          const lines = textInput.value.split('\n');
-          lines.forEach((line, index) => {
-            ctx.fillText(line, x, y + (index + 1) * currentFontSize);
-          });
+          ctx.fillText(input.value, x, y + currentFontSize);
           updateCanvas();
         }
-        textInput.style.display = 'none';
-        textInput.value = '';
-        canvas.removeEventListener('click', handleClickOutside);
-      }
+        document.body.removeChild(input);
+      });
 
-      function handleClickOutside(event) {
-        if (event.target !== textInput) {
-          handleTextInput();
-        }
-      }
-
-      textInput.addEventListener('blur', handleTextInput);
-      canvas.addEventListener('click', handleClickOutside);
-
-      textInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          handleTextInput();
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          input.blur();
         }
       });
     }
@@ -496,88 +477,104 @@
       bgColor: '#ffffff'
     };
     canvases.push(newCanvas);
-    createTab(canvases.length -  1);
+    createTab(canvases.length - 1);
     switchTab(canvases.length - 1);
   }
 
   function createTab(index) {
     const tab = document.createElement('div');
     tab.className = 'tab';
-    tab.textContent = `畫布 ${index + 1}`;
+    tab.textContent = `第 ${index + 1} 頁`;
     tab.addEventListener('click', () => switchTab(index));
     tabContainer.insertBefore(tab, newTabBtn);
   }
 
   function switchTab(index) {
-    saveCurrentCanvas();
+    updateCanvas();
     currentTabIndex = index;
-    loadCanvas(canvases[index]);
-    updateTabStyles();
+    bgColor = canvases[index].bgColor;
+    bgColorPicker.value = bgColor;
+    drawBackground();
+    if (canvases[index].data) {
+      ctx.putImageData(canvases[index].data, 0, 0);
+    }
+    updateActiveTab();
+    undoStack = [];
+    redoStack = [];
+    updateUndoRedoButtons();
   }
 
-  function updateTabStyles() {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach((tab, index) => {
-      if (index === currentTabIndex) {
-        tab.classList.add('active');
-      } else {
-        tab.classList.remove('active');
-      }
-    });
-  }
-
-  function saveCurrentCanvas() {
+  function updateCanvas() {
     canvases[currentTabIndex] = {
       data: ctx.getImageData(0, 0, canvas.width, canvas.height),
       bgColor: bgColor
     };
   }
 
-  function loadCanvas(canvasData) {
-    ctx.putImageData(canvasData.data, 0, 0);
-    bgColor = canvasData.bgColor;
-    bgColorPicker.value = bgColor;
+  function updateActiveTab() {
+    const tabs = tabContainer.getElementsByClassName('tab');
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].classList.toggle('active', i === currentTabIndex);
+    }
   }
 
-  function updateCanvas() {
-    saveCurrentCanvas();
-  }
-
-  newTabBtn.addEventListener('click', addNewTab);
-
-  pasteImageBtn.addEventListener('click', async () => {
-    try {
-      const clipboardItems = await navigator.clipboard.read();
+  pasteImageBtn.addEventListener('click', () => {
+    navigator.clipboard.read().then(clipboardItems => {
       for (const clipboardItem of clipboardItems) {
         for (const type of clipboardItem.types) {
           if (type.startsWith('image/')) {
-            const blob = await clipboardItem.getType(type);
-            const img = new Image();
-            img.onload = () => {
-              saveState();
-              ctx.drawImage(img, 0, 0);
-              updateCanvas();
-            };
-            img.src = URL.createObjectURL(blob);
+            clipboardItem.getType(type).then(blob => {
+              const img = new Image();
+              img.onload = () => {
+                saveState();
+                const scale = Math.min(
+                  canvas.width / img.width,
+                  canvas.height / img.height
+                );
+                const width = img.width * scale;
+                const height = img.height * scale;
+                const x = (canvas.width - width) / 2;
+                const y = (canvas.height - height) / 2;
+
+                ctx.globalAlpha = currentOpacity;
+                ctx.drawImage(img, x, y, width, height);
+                updateCanvas();
+              };
+              img.src = URL.createObjectURL(blob);
+            });
             return;
           }
         }
       }
-    } catch (err) {
-      console.error('無法讀取剪貼簿中的圖片：', err);
+    }).catch(err => {
+      console.error('無法讀取剪貼簿內容:', err);
+      alert('無法讀取剪貼簿內容。請確保您已複製了圖片。');
+    });
+  });
+
+  newTabBtn.addEventListener('click', addNewTab);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'v') {
+      e.preventDefault();
+      pasteImageBtn.click();
+    }
+    if (e.ctrlKey && e.key === 'z') {
+      e.preventDefault();
+      undo();
+    }
+    if (e.ctrlKey && e.key === 'y') {
+      e.preventDefault();
+      redo();
     }
   });
 
-  function saveState() {
-    undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-    redoStack = [];
-    updateUndoRedoButtons();
-  }
-
   function undo() {
     if (undoStack.length > 0) {
-      redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      ctx.putImageData(undoStack.pop(), 0, 0);
+      const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      redoStack.push(currentState);
+      const previousState = undoStack.pop();
+      ctx.putImageData(previousState, 0, 0);
       updateCanvas();
       updateUndoRedoButtons();
     }
@@ -585,11 +582,20 @@
 
   function redo() {
     if (redoStack.length > 0) {
-      undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      ctx.putImageData(redoStack.pop(), 0, 0);
+      const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      undoStack.push(currentState);
+      const nextState = redoStack.pop();
+      ctx.putImageData(nextState, 0, 0);
       updateCanvas();
       updateUndoRedoButtons();
     }
+  }
+
+  function saveState() {
+    const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    undoStack.push(currentState);
+    redoStack = [];
+    updateUndoRedoButtons();
   }
 
   function updateUndoRedoButtons() {
@@ -601,18 +607,17 @@
   redoBtn.addEventListener('click', redo);
 
   exportSelect.addEventListener('change', (e) => {
-    const action = e.target.value;
-    if (action === 'exportImage') {
+    if (e.target.value === 'exportImage') {
       exportImage();
-    } else if (action === 'exportPDF') {
+    } else if (e.target.value === 'exportPDF') {
       exportPDF();
     }
-    exportSelect.value = '';
+    e.target.value = ''; // Reset the select after action
   });
 
   function exportImage() {
     const link = document.createElement('a');
-    link.download = 'whiteboard.png';
+    link.download = `whiteboard_page_${currentTabIndex + 1}.png`;
     link.href = canvas.toDataURL();
     link.click();
   }
@@ -620,19 +625,46 @@
   function exportPDF() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('l', 'px', [canvas.width, canvas.height]);
-    pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, canvas.width, canvas.height);
+
+    canvases.forEach((canvasData, index) => {
+      if (index > 0) {
+        pdf.addPage();
+      }
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.fillStyle = canvasData.bgColor;
+      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCtx.putImageData(canvasData.data, 0, 0);
+
+      const imgData = tempCanvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    });
+
     pdf.save('whiteboard.pdf');
   }
 
   copyCanvasBtn.addEventListener('click', () => {
-    saveCurrentCanvas();
-    const copiedCanvas = JSON.parse(JSON.stringify(canvases[currentTabIndex]));
-    canvases.push(copiedCanvas);
-    createTab(canvases.length - 1);
-    switchTab(canvases.length - 1);
+    saveState();
+    const newCanvas = {
+      data: ctx.getImageData(0, 0, canvas.width, canvas.height),
+      bgColor: bgColor
+    };
+    canvases.splice(currentTabIndex + 1, 0, newCanvas);
+    createTab(currentTabIndex + 1);
+    switchTab(currentTabIndex + 1);
+    updateTabNames();
   });
+
+  function updateTabNames() {
+    const tabs = tabContainer.getElementsByClassName('tab');
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].textContent = `第 ${i + 1} 頁`;
+    }
+  }
 
   addNewTab();
 </script>
-</body>
-</html>
+</body></html>
