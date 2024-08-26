@@ -138,6 +138,24 @@
             background-color: #f39c12;
             color: white;
         }
+        .homework-name-container {
+       display: flex;
+       align-items: center;
+       margin-bottom: 10px;
+       }
+       .homework-name-container label {
+       flex-shrink: 0;
+       margin-right: 10px;
+       }
+       .homework-name-container input[type="text"] {
+       flex-grow: 1;
+       padding: 8px;
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       box-sizing: border-box;
+       } 
+
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -170,8 +188,10 @@
             section.className = 'card homework-section';
             section.innerHTML = `
                 <h2>作業 ${index + 1}</h2>
-                 <label for="homework-name-${index}">作業名稱：</label>
-           <input type="text" id="homework-name-${index}" placeholder="請輸入作業名稱">
+                <div class="homework-name-container">
+                    <label for="homework-name-${index}">作業名稱：</label>
+                    <input type="text" id="homework-name-${index}" placeholder="請輸入作業名稱">
+                </div>
                  <h3>學生座號       
               <button class="homework-button homework-button-clear" onclick="clearHomework(${index})">清除</button></h3>
                 <div class="student-numbers" id="student-numbers-${index}"></div>
