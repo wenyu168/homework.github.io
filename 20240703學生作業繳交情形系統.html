@@ -171,14 +171,8 @@
             section.innerHTML = `
                 <h2>作業 ${index + 1}</h2>
                  <label for="homework-name-${index}">作業名稱：</label>
-        <select id="homework-name-${index}" required>
-            <option value="">請選擇作業</option>
-            <option value="國習">國習</option>
-            <option value="數習">數習</option>
-            <option value="社習">社習</option>
-            <option value="自習">自習</option>
-        </select>
-                <h3>學生座號       
+           <input type="text" id="homework-name-${index}" placeholder="請輸入作業名稱">
+                 <h3>學生座號       
               <button class="homework-button homework-button-clear" onclick="clearHomework(${index})">清除</button></h3>
                 <div class="student-numbers" id="student-numbers-${index}"></div>
                 <div class="status-display">
@@ -269,11 +263,11 @@
         for (let i = 0; i < homeworkCount; i++) {
             const studentElement = document.querySelector(`#student-numbers-${i} .student-number:nth-child(${studentNo})`);
             if (studentElement.classList.contains('not-submitted')) {
-                row.push(2);  // 未繳交
+                row.push(2);  // 未繳交，呈現2
             } else if (studentElement.classList.contains('needs-correction')) {
-                row.push(3);  // 待訂正
+                row.push(3);  // 待訂正，呈現3
             } else {
-                row.push(1);  // 正常
+                row.push("");  // 正常，呈現空白
             }
         }
         data.push(row);
