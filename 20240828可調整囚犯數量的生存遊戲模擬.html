@@ -1,0 +1,384 @@
+<html><head><base href="https://html-simulation.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可調整囚犯數量的生存遊戲模擬與簡化數學解法</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+#simulation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    max-width: 720px;
+    overflow-x: auto;
+}
+
+#header {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.header-cell {
+    width: 36px;
+    text-align: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+#simulation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.prisoner {
+    width: 30px;
+    height: 30px;
+    margin: 3px;
+    border-radius: 50%;
+    background-color: #3498db;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+    transition: all 0.5s ease;
+    flex-shrink: 0;
+}
+
+.eliminated {
+    background-color: #e74c3c;
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.highlight {
+    box-shadow: 0 0 10px #f1c40f;
+}
+
+#controls {
+    margin-bottom: 20px;
+}
+
+button, input[type="number"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 10px;
+}
+
+input[type="number"] {
+    background-color: white;
+    color: black;
+    width: 100px;
+}
+
+button:hover {
+    background-color: #27ae60;
+}
+
+button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+#info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#speed {
+    margin: 10px 0;
+}
+
+#speedValue {
+    font-weight: bold;
+}
+
+#math-solution {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    max-width: 800px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#math-solution h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+#math-solution p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.formula {
+    font-family: "Times New Roman", Times, serif;
+    font-style: italic;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+</style>
+</head>
+<body>
+<h1>可調整囚犯數量的生存遊戲模擬</h1>
+<div id="info">
+    <p>總囚犯數: <span id="totalPrisoners">100</span></p>
+    <p>當前回合: <span id="currentRound">0</span></p>
+    <p>存活囚犯: <span id="alivePrisoners">100</span></p>
+</div>
+<div id="simulation-container">
+    <div id="header"></div>
+    <div id="simulation"></div>
+</div>
+<div id="controls">
+    <input type="number" id="prisonerCount" min="1" max="1000" value="100">
+    <button id="start">開始模擬</button>
+    <button id="nextStep" disabled>下一步</button>
+    <button id="quickSimulation">快速模擬</button>
+    <button id="reset">重置</button>
+</div>
+<div id="speed">
+    模擬速度: <span id="speedValue">1x</span>
+    <input type="range" min="1" max="20" value="1" id="speedControl">
+</div>
+
+<div id="math-solution">
+    <h2>簡化數學解法</h2>
+    <p>這個問題可以通過以下步驟來解決：</p>
+    <ol>
+        <li>找出小於或等於囚犯總數的最大的 2 的冪次方數。</li>
+        <li>這個數就是最後存活的囚犯的位置。</li>
+    </ol>
+    <p>例如，對於當前設定的囚犯數 <span id="currentPrisonerCount">100</span>：</p>
+    <ol>
+        <li>小於或等於 <span id="currentPrisonerCount2">100</span> 的最大 2 的冪次方數是 <span id="maxPowerOf2">64</span>。</li>
+        <li>因此，最後存活的囚犯位置是 <span id="mathSolution">64</span>。</li>
+    </ol>
+    <p>這裡有一個表格來幫助理解 2 的冪次方：</p>
+    <table>
+        <tr>
+            <th>冪次</th>
+            <th>2 的冪次方</th>
+        </tr>
+        <tr><td>2^0</td><td>1</td></tr>
+        <tr><td>2^1</td><td>2</td></tr>
+        <tr><td>2^2</td><td>4</td></tr>
+        <tr><td>2^3</td><td>8</td></tr>
+        <tr><td>2^4</td><td>16</td></tr>
+        <tr><td>2^5</td><td>32</td></tr>
+        <tr><td>2^6</td><td>64</td></tr>
+        <tr><td>2^7</td><td>128</td></tr>
+        <tr><td>2^8</td><td>256</td></tr>
+        <tr><td>2^9</td><td>512</td></tr>
+        <tr><td>2^10</td><td>1024</td></tr>
+    </table>
+    <p>這個方法反映了遊戲的規則：每一輪都會淘汰奇數位置的囚犯，直到剩下一個人。</p>
+</div>
+
+<script>
+let totalPrisoners = 100;
+let prisoners = Array(totalPrisoners).fill(true);
+let round = 0;
+let speed = 1000;
+let isSimulationRunning = false;
+const prisonersPerRow = 20;
+
+function initSimulation() {
+    const header = document.getElementById('header');
+    header.innerHTML = '';
+    for (let i = 1; i <= prisonersPerRow; i++) {
+        const headerCell = document.createElement('div');
+        headerCell.className = 'header-cell';
+        headerCell.textContent = i;
+        header.appendChild(headerCell);
+    }
+
+    const simulation = document.getElementById('simulation');
+    simulation.innerHTML = '';
+    for (let i = 0; i < totalPrisoners; i++) {
+        if (i % prisonersPerRow === 0 && i !== 0) {
+            simulation.appendChild(document.createElement('br'));
+        }
+        const prisoner = document.createElement('div');
+        prisoner.className = 'prisoner';
+        prisoner.id = `prisoner-${i + 1}`;
+        prisoner.textContent = i + 1;
+        simulation.appendChild(prisoner);
+    }
+    prisoners = Array(totalPrisoners).fill(true);
+    round = 0;
+    updateInfo();
+    updateMathSolution();
+    document.getElementById('start').disabled = false;
+    document.getElementById('nextStep').disabled = true;
+    document.getElementById('quickSimulation').disabled = false;
+}
+
+function updateInfo() {
+    document.getElementById('totalPrisoners').textContent = totalPrisoners;
+    document.getElementById('currentRound').textContent = round;
+    document.getElementById('alivePrisoners').textContent = prisoners.filter(Boolean).length;
+}
+
+function updateMathSolution() {
+    const solution = Math.pow(2, Math.floor(Math.log2(totalPrisoners)));
+    document.getElementById('mathSolution').textContent = solution;
+    document.getElementById('currentPrisonerCount').textContent = totalPrisoners;
+    document.getElementById('currentPrisonerCount2').textContent = totalPrisoners;
+    document.getElementById('maxPowerOf2').textContent = solution;
+}
+
+async function eliminatePrisoners() {
+    let count = 1;
+    for (let i = 0; i < prisoners.length; i++) {
+        if (prisoners[i]) {
+            const prisoner = document.getElementById(`prisoner-${i + 1}`);
+            prisoner.classList.add('highlight');
+            await new Promise(resolve => setTimeout(resolve, speed));
+            prisoner.classList.remove('highlight');
+            
+            if (count % 2 === 1) {
+                prisoner.classList.add('eliminated');
+                prisoners[i] = false;
+            }
+            count++;
+        }
+    }
+    round++;
+    updateInfo();
+
+    await new Promise(resolve => setTimeout(resolve, speed));
+
+    rearrangePrisoners();
+}
+
+function rearrangePrisoners() {
+    const simulation = document.getElementById('simulation');
+    const survivingPrisoners = Array.from(simulation.querySelectorAll('.prisoner:not(.eliminated)'));
+    
+    simulation.innerHTML = '';
+    survivingPrisoners.forEach((prisoner, index) => {
+        if (index % prisonersPerRow === 0 && index !== 0) {
+            simulation.appendChild(document.createElement('br'));
+        }
+        simulation.appendChild(prisoner);
+    });
+
+    const eliminatedPrisoners = document.querySelectorAll('.prisoner.eliminated');
+    eliminatedPrisoners.forEach(prisoner => prisoner.remove());
+}
+
+async function startSimulation() {
+    document.getElementById('start').disabled = true;
+    document.getElementById('nextStep').disabled = false;
+    document.getElementById('quickSimulation').disabled = true;
+    document.getElementById('prisonerCount').disabled = true;
+    isSimulationRunning = true;
+    await nextStep();
+}
+
+async function nextStep() {
+    if (prisoners.filter(Boolean).length > 1) {
+        await eliminatePrisoners();
+        document.getElementById('nextStep').disabled = false;
+        document.getElementById('quickSimulation').disabled = false;
+    } else {
+        const survivor = document.querySelector('.prisoner:not(.eliminated)');
+        alert(`遊戲結束！最後存活的囚犯原始編號是：${survivor.textContent}`);
+        isSimulationRunning = false;
+        document.getElementById('nextStep').disabled = true;
+        document.getElementById('quickSimulation').disabled = true;
+    }
+}
+
+async function quickSimulation() {
+    document.getElementById('start').disabled = true;
+    document.getElementById('nextStep').disabled = true;
+    document.getElementById('quickSimulation').disabled = true;
+    document.getElementById('prisonerCount').disabled = true;
+    const originalSpeed = speed;
+    speed = 50; // Set to a very fast speed for quick simulation
+    while (prisoners.filter(Boolean).length > 1) {
+        await eliminatePrisoners();
+    }
+    speed = originalSpeed;
+    const survivor = document.querySelector('.prisoner:not(.eliminated)');
+    alert(`遊戲結束！最後存活的囚犯原始編號是：${survivor.textContent}`);
+    isSimulationRunning = false;
+    document.getElementById('start').disabled = true;
+    document.getElementById('nextStep').disabled = true;
+    document.getElementById('quickSimulation').disabled = true;
+}
+
+document.getElementById('start').addEventListener('click', startSimulation);
+
+document.getElementById('nextStep').addEventListener('click', async () => {
+    document.getElementById('nextStep').disabled = true;
+    document.getElementById('quickSimulation').disabled = true;
+    await nextStep();
+});
+
+document.getElementById('quickSimulation').addEventListener('click', quickSimulation);
+
+document.getElementById('reset').addEventListener('click', () => {
+    document.getElementById('prisonerCount').disabled = false;
+    document.getElementById('start').disabled = false;
+    document.getElementById('quickSimulation').disabled = false;
+    initSimulation();
+    isSimulationRunning = false;
+});
+
+document.getElementById('speedControl').addEventListener('input', (e) => {
+    speed = 1000 / e.target.value;
+    document.getElementById('speedValue').textContent = `${e.target.value}x`;
+});
+
+document.getElementById('prisonerCount').addEventListener('change', (e) => {
+    totalPrisoners = parseInt(e.target.value);
+    if (isNaN(totalPrisoners) || totalPrisoners < 1) {
+        totalPrisoners = 1;
+    } else if (totalPrisoners > 1000) {
+        totalPrisoners = 1000;
+    }
+    e.target.value = totalPrisoners;
+    initSimulation();
+});
+
+initSimulation();
+</script>
+</body></html>
