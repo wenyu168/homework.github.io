@@ -1,0 +1,243 @@
+<html><head><base href="." target="_blank"><title>資料查詢系統</title>
+<style>
+* {
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 80%;
+    max-width: 800px;
+}
+
+.input-area {
+    margin-bottom: 20px;
+}
+
+.file-input-container {
+    margin: 10px 0;
+}
+
+.button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.button:hover {
+    background: #45a049;
+}
+
+.export-button {
+    background: #2196F3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+    margin-left: 10px;
+}
+
+.export-button:hover {
+    background: #1976D2;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#result {
+    margin-top: 20px;
+    white-space: pre-line;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+}
+
+.instructions {
+    margin-bottom: 20px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #e9ecef;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+.file-label:hover {
+    background: #dee2e6;
+}
+
+.file-name {
+    margin-left: 10px;
+    color: #666;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>資料查詢系統</h1>
+    
+    <div class="instructions">
+        <h3>使用說明：</h3>
+        <p>1. 匯入原始資料檔（CSV格式：序號,名稱）</p>
+        <p>2. 匯入查詢序號檔（每行一個序號）</p>
+        <p>3. 點擊"查詢"按鈕獲得結果</p>
+        <p>4. 點擊"匯出"按鈕下載查詢結果</p>
+    </div>
+
+    <div class="input-area">
+        <div class="file-input-container">
+            <h3>原始資料檔：</h3>
+            <label class="file-label">
+                選擇檔案
+                <input type="file" id="sourceFile" accept=".csv,.txt" style="display: none">
+            </label>
+            <span id="sourceFileName" class="file-name"></span>
+        </div>
+        
+        <div class="file-input-container">
+            <h3>查詢序號檔：</h3>
+            <label class="file-label">
+                選擇檔案
+                <input type="file" id="queryFile" accept=".txt" style="display: none">
+            </label>
+            <span id="queryFileName" class="file-name"></span>
+        </div>
+        
+        <div class="button-group">
+            <button class="button" onclick="performQuery()" id="queryButton" disabled>查詢</button>
+            <button class="export-button" onclick="exportResults()" id="exportButton" disabled>匯出結果</button>
+        </div>
+    </div>
+
+    <div>
+        <h3>查詢結果：</h3>
+        <div id="result"></div>
+    </div>
+</div>
+
+<script>
+let sourceData = null;
+let queryData = null;
+let queryResults = [];
+
+function handleFileSelect(fileInput, fileNameElement, dataType) {
+    const file = fileInput.files[0];
+    if (file) {
+        fileNameElement.textContent = file.name;
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            if (dataType === 'source') {
+                sourceData = e.target.result;
+            } else {
+                queryData = e.target.result;
+            }
+            checkEnableButton();
+        };
+        
+        reader.readAsText(file);
+    }
+}
+
+function checkEnableButton() {
+    const queryButton = document.getElementById('queryButton');
+    queryButton.disabled = !(sourceData && queryData);
+}
+
+function performQuery() {
+    if (!sourceData || !queryData) {
+        alert('請先匯入所有必要的檔案');
+        return;
+    }
+    
+    // 解析原始資料
+    const sourceMap = new Map();
+    sourceData.split('\n').forEach(line => {
+        if (line.trim()) {
+            const [id, name] = line.split(',');
+            if (id && name) {
+                sourceMap.set(id.trim(), name.trim());
+            }
+        }
+    });
+    
+    // 處理查詢
+    queryResults = [];
+    const displayResults = [];
+    queryData.split('\n').forEach(query => {
+        const queryId = query.trim();
+        if (queryId) {
+            const name = sourceMap.get(queryId) || '未找到';
+            displayResults.push(`${queryId} => ${name}`);
+            queryResults.push([queryId, name]);
+        }
+    });
+    
+    // 顯示結果
+    document.getElementById('result').textContent = displayResults.join('\n');
+    document.getElementById('exportButton').disabled = false;
+}
+
+function exportResults() {
+    if (queryResults.length === 0) {
+        alert('沒有可匯出的查詢結果');
+        return;
+    }
+
+    // 建立 CSV 內容
+    const csvContent = new Blob(
+        ['\uFEFF' + '序號,名稱\n' + 
+         queryResults.map(row => `${row[0]},${row[1]}`).join('\n')],
+        { type: 'text/csv;charset=utf-8;' }
+    );
+
+    // 建立下載連結
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(csvContent);
+    downloadLink.download = '查詢結果.csv';
+
+    // 加入到文件中並觸發下載
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(downloadLink.href);
+}
+
+// 設置檔案輸入監聽器
+document.getElementById('sourceFile').addEventListener('change', function(e) {
+    handleFileSelect(this, document.getElementById('sourceFileName'), 'source');
+});
+
+document.getElementById('queryFile').addEventListener('change', function(e) {
+    handleFileSelect(this, document.getElementById('queryFileName'), 'query');
+});
+</script>
+</body></html>
