@@ -1,0 +1,369 @@
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>五子棋 - 15x15</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f0d9b5;
+      font-family: Arial, sans-serif;
+    }
+    
+    #status {
+      font-size: 24px;
+      margin: 20px;
+      color: #6b4e3a;
+    }
+    
+    canvas {
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      border-radius: 5px;
+      cursor: pointer;
+      background: #d4a768;
+      margin: 30px;
+    }
+    
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #6b4e3a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background: #8a6d5b;
+    }
+    
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    #coordInput {
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+      border: 2px solid #6b4e3a;
+      border-radius: 5px;
+      text-transform: uppercase;
+    }
+    
+    #coordInput:focus {
+      outline: none;
+      border-color: #8a6d5b;
+    }
+  </style>
+</head>
+<body>
+  <div class="input-container">
+    <input type="text" id="coordInput" placeholder="輸入座標（如 H8）">
+    <button onclick="resetGame()">重新開始</button>
+  </div>
+  <div id="status">黑棋回合</div>
+  <canvas id="board" width="600" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const cellSize = 36;
+    const boardSize = 15;
+    let currentPlayer = 1; // 1: 黑, 2: 白
+    let board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
+    let gameOver = false;
+    let threatPoints = [];
+
+    // 新增加座標輸入處理
+    document.getElementById('coordInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleCoordinateInput();
+    });
+
+    function handleCoordinateInput() {
+      if (gameOver) return;
+      
+      const input = document.getElementById('coordInput').value.trim().toUpperCase();
+      const isValid = /^[A-O](1[0-5]|[1-9])$/.test(input);
+      
+      if (!isValid) {
+        status.textContent = '無效座標，範例：H8';
+        return;
+      }
+
+      const x = input.charCodeAt(0) - 65; // A=0, O=14
+      const y = parseInt(input.slice(1)) - 1; // 1=0, 15=14
+      
+      if (x >= 0 && x < 15 && y >= 0 && y < 15 && board[x][y] === 0) {
+        document.getElementById('coordInput').value = '';
+        placePiece(x, y);
+      }
+    }
+
+    // 新增音效相關功能
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(frequency, type = 'sine', duration = 0.2) {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function playPlaceSound() {
+      playTone(880, 'square', 0.1);
+    }
+
+    function playThreatSound() {
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.setValueAtTime(440, now);
+      oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.3);
+      
+      gainNode.gain.setValueAtTime(0.1, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      oscillator.stop(now + 0.5);
+    }
+
+    function playWinSound() {
+      const chords = [
+        {freq: 523.25, duration: 0.3}, // C5
+        {freq: 659.25, duration: 0.3}, // E5
+        {freq: 783.99, duration: 0.3}  // G5
+      ];
+      
+      chords.forEach((note, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(note.freq, audioContext.currentTime + index * 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + index * 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + note.duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime + index * 0.1);
+        oscillator.stop(audioContext.currentTime + index * 0.1 + note.duration);
+      });
+    }
+
+    function placePiece(x, y) {
+      playPlaceSound(); // 新增下棋音效
+      board[x][y] = currentPlayer;
+      drawPiece(x, y);
+      
+      if (checkWin(x, y)) {
+        playWinSound(); // 新增勝利音效
+        status.textContent = `${currentPlayer === 1 ? '黑棋' : '白棋'} 獲勝！`;
+        gameOver = true;
+        threatPoints = [];
+      } else {
+        const nextPlayer = 3 - currentPlayer;
+        threatPoints = checkImminentWin(nextPlayer);
+        
+        if (threatPoints.length > 0) {
+          playThreatSound(); // 新增聽牌警告音效
+          status.innerHTML = `${nextPlayer === 1 ? '黑棋' : '白棋'} 聽牌警告！<br>請注意防守以下位置：`;
+          threatPoints.forEach((pos, index) => {
+            if (index < 3) { // 最多顯示前三個威脅點
+              const coord = `${String.fromCharCode(65 + pos.x)}${pos.y + 1}`;
+              status.innerHTML += ` ${coord}`;
+            }
+          });
+          drawThreatAlerts();
+        } else {
+          status.textContent = `${nextPlayer === 1 ? '黑棋' : '白棋'} 回合`;
+        }
+        
+        currentPlayer = nextPlayer;
+      }
+    }
+
+    function checkImminentWin(player) {
+      const threats = [];
+      for (let x = 0; x < boardSize; x++) {
+        for (let y = 0; y < boardSize; y++) {
+          if (board[x][y] === 0) {
+            board[x][y] = player;
+            if (checkWin(x, y)) threats.push({x, y});
+            board[x][y] = 0;
+          }
+        }
+      }
+      return threats;
+    }
+
+    function drawThreatAlerts() {
+      threatPoints.forEach(({x, y}) => {
+        const posX = cellSize * (x + 0.5) + 30;
+        const posY = cellSize * (y + 0.5) + 30;
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(posX, posY, 14, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+
+    function drawBoard() {
+      ctx.strokeStyle = '#6b4e3a';
+      ctx.lineWidth = 2;
+      
+      // 繪製座標文字
+      ctx.font = '16px Arial';
+      ctx.fillStyle = '#6b4e3a';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // 繪製橫向座標（字母）
+      for (let i = 0; i < boardSize; i++) {
+        const letter = String.fromCharCode(65 + i); // A-O
+        const x = cellSize * (i + 0.5) + 30;
+        ctx.fillText(letter, x, 15);  // 上方座標
+        ctx.fillText(letter, x, canvas.height - 15);  // 下方座標
+      }
+
+      // 繪製縱向座標（數字）
+      for (let i = 0; i < boardSize; i++) {
+        const number = (i + 1).toString();
+        const y = cellSize * (i + 0.5) + 30;
+        ctx.fillText(number, 15, y);  // 左側座標
+        ctx.fillText(number, canvas.width - 15, y);  // 右側座標
+      }
+
+      // 繪製棋盤線
+      for (let i = 0; i < boardSize; i++) {
+        const pos = cellSize * i + cellSize/2;
+        ctx.beginPath();
+        ctx.moveTo(pos + 30, cellSize/2 + 30);
+        ctx.lineTo(pos + 30, canvas.height - cellSize/2 - 30);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(cellSize/2 + 30, pos + 30);
+        ctx.lineTo(canvas.width - cellSize/2 - 30, pos + 30);
+        ctx.stroke();
+      }
+
+      // 繪製星位點
+      drawStarPoint(3, 3);
+      drawStarPoint(11, 3);
+      drawStarPoint(3, 11);
+      drawStarPoint(11, 11);
+      drawStarPoint(7, 7);
+      
+      drawThreatAlerts();
+    }
+
+    function drawStarPoint(x, y) {
+      ctx.fillStyle = '#6b4e3a';
+      const pos = cellSize * (x + 0.5) + 30;
+      ctx.beginPath();
+      ctx.arc(pos, pos, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawPiece(x, y) {
+      ctx.fillStyle = currentPlayer === 1 ? '#2d2d2d' : '#f5f5f5';
+      ctx.beginPath();
+      const posX = cellSize * (x + 0.5) + 30;
+      const posY = cellSize * (y + 0.5) + 30;
+      ctx.arc(posX, posY, 16, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function handleClick(e) {
+      if (gameOver) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.round((e.clientX - rect.left - 30 - cellSize/2) / cellSize);
+      const y = Math.round((e.clientY - rect.top - 30 - cellSize/2) / cellSize);
+
+      if (x >= 0 && x < boardSize && y >= 0 && y < boardSize && board[x][y] === 0) {
+        placePiece(x, y);
+      }
+    }
+
+    function checkWin(x, y) {
+      const directions = [
+        [1, 0], [0, 1], [1, 1], [1, -1]
+      ];
+
+      return directions.some(([dx, dy]) => {
+        let count = 1;
+        [[-1, -1], [1, 1]].forEach(([signX, signY]) => {
+          for (let i = 1; ; i++) {
+            const newX = x + i * dx * signX;
+            const newY = y + i * dy * signY;
+            if (newX < 0 || newX >= boardSize || newY < 0 || newY >= boardSize) break;
+            if (board[newX][newY] === currentPlayer) count++;
+            else break;
+          }
+        });
+        return count >= 5;
+      });
+    }
+
+    function resetGame() {
+      board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
+      gameOver = false;
+      currentPlayer = 1;
+      threatPoints = [];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBoard();
+      status.textContent = '黑棋回合';
+    }
+
+    function redrawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBoard();
+      // 重繪所有棋子
+      for (let x = 0; x < boardSize; x++) {
+        for (let y = 0; y < boardSize; y++) {
+          if (board[x][y] !== 0) {
+            const originalPlayer = currentPlayer;
+            currentPlayer = board[x][y];
+            drawPiece(x, y);
+            currentPlayer = originalPlayer;
+          }
+        }
+      }
+      drawThreatAlerts();
+    }
+
+    // 初始化
+    for (let i = 0; i < boardSize; i++) {
+      board[i] = Array(boardSize).fill(0);
+    }
+    drawBoard();
+    canvas.addEventListener('click', handleClick);
+  </script>
+</body>
+</html>
