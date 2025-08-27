@@ -1,0 +1,279 @@
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生表現管理系統</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>🎓 學生表現管理系統</h1>
+            <div class="header-right-group">
+                <div class="class-total-score">
+                    總分：<span id="total-class-score">0</span>
+                </div>
+                <div class="class-student-count">
+                    學生數：<span id="class-student-count">0</span>
+                </div>
+                <div class="class-info">
+                    <span id="class-display-name">班級：五年三班</span>
+                    <span>日期：<span id="current-date"></span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="toolbar">
+            <div class="toolbar-actions">
+                <div class="left-toolbar-group">
+                    <div class="class-management-group">
+                        <select id="class-select" class="action-btn"></select>
+                        <button id="add-class-btn" class="action-btn">➕ 新增班級</button>
+                        <button id="delete-class-btn" class="action-btn delete-btn">🗑️ 刪除班級</button>
+                        <button id="add-students-text-btn" class="action-btn">➕ 加入學生名單</button>
+                        <button id="open-settings-btn" class="action-btn">⚙️ 下拉選單設定</button>
+                        <div id="add-students-text-wrapper" style="display:none; width:320px;">
+                            <textarea id="add-students-textarea" placeholder="每行輸入一位學生姓名" style="width:100%; height:100px; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #cbd5e0;"></textarea>
+                            <div style="display:flex; gap:8px; margin-top:8px;">
+                                <button id="confirm-add-students-btn" class="action-btn">加入</button>
+                                <button id="cancel-add-students-btn" class="action-btn">取消</button>
+                            </div>
+                        </div>
+                        <div class="display-options-group">
+                            <label for="students-per-row-select">每列學生數:</label>
+                            <select id="students-per-row-select" class="action-btn">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="utility-buttons-group">
+                        <button id="draw-students-btn" class="action-btn">🎲 抽籤</button>
+                        <button id="countdown-btn" class="action-btn">⏱️ 倒數計時</button>
+                        <button id="contact-book-btn" class="action-btn">📝 連絡簿</button>
+                        <button id="homework-check-btn" class="action-btn">✅ 作業檢查</button>
+                        <button id="export-btn" class="action-btn">📊 匯出JSON</button>
+                        <button id="import-data-btn" class="action-btn">📥 匯入JSON</button>
+                        <input type="file" id="data-file-input" accept=".json" style="display: none;">
+                        <button id="export-excel-btn" class="action-btn">📈 匯出Excel</button>
+                        <button id="import-excel-btn" class="action-btn">📊 匯入Excel</button>
+                        <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="students-grid" id="students-grid">
+            <!-- Students will be dynamically generated here -->
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- Drawing Modal Structure -->
+    <div id="drawing-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="drawing-modal-close">&times;</span>
+            <h2>🎲 學生抽籤</h2>
+            <div id="drawing-controls">
+                <p>班級: <span id="drawing-class-name"></span></p>
+                <p>剩餘學生: <span id="drawing-available-count">0</span> 人</p>
+                <div class="drawing-input-group">
+                    <label for="num-to-draw">每次抽取人數:</label>
+                    <input type="number" id="num-to-draw" value="1" min="1">
+                </div>
+                <div class="drawing-buttons">
+                    <button id="start-draw-btn" class="action-btn primary-btn">開始抽籤</button>
+                    <button id="reset-draw-btn" class="action-btn secondary-btn">重置</button>
+                </div>
+            </div>
+            <div id="drawing-results">
+                <h3>本次抽中:</h3>
+                <div id="drawn-student-display">
+                    <!-- Latest drawn students will appear here -->
+                    <p class="placeholder-text">點擊「開始抽籤」</p>
+                </div>
+                <div id="drawing-history">
+                    <h4>已抽中學生列表:</h4>
+                    <ul id="drawn-students-list">
+                        <!-- All drawn students will be listed here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Countdown Modal Structure -->
+    <div id="countdown-modal" class="modal">
+        <div class="modal-content countdown-modal-content">
+            <span class="close-button" id="countdown-modal-close">&times;</span>
+            <h2>⏱️ 倒數計時</h2>
+            <div id="countdown-settings">
+                <div class="countdown-input-group">
+                    <label for="countdown-minutes-input">分:</label>
+                    <div class="countdown-input-wrapper">
+                        <input type="number" id="countdown-minutes-input" value="5" min="0" max="99">
+                        <div class="countdown-controls">
+                            <button class="countdown-control-btn" data-action="increment" data-target="minutes">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8l-6 6h12z"/></svg>
+                            </button>
+                            <button class="countdown-control-btn" data-action="decrement" data-target="minutes">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l6-6H6z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <label for="countdown-seconds-input">秒:</label>
+                    <div class="countdown-input-wrapper">
+                        <input type="number" id="countdown-seconds-input" value="0" min="0" max="59">
+                        <div class="countdown-controls">
+                            <button class="countdown-control-btn" data-action="increment" data-target="seconds">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8l-6 6h12z"/></svg>
+                            </button>
+                            <button class="countdown-control-btn" data-action="decrement" data-target="seconds">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l6-6H6z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="countdown-display">05:00</div>
+                <div class="countdown-buttons">
+                    <button id="start-countdown-btn" class="action-btn primary-btn">開始</button>
+                    <button id="pause-countdown-btn" class="action-btn secondary-btn" disabled>暫停</button>
+                    <button id="reset-countdown-btn" class="action-btn secondary-btn">重置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Book Modal Structure -->
+    <div id="contact-book-modal" class="modal">
+        <div class="modal-content contact-book-modal-content">
+            <span class="close-button" id="contact-book-modal-close">&times;</span>
+            <h2>📝 連絡簿</h2>
+            <div class="contact-book-header">
+                <div class="contact-book-date-nav">
+                    <button id="prev-day-btn" class="action-btn date-nav-button">◀︎</button>
+                    <div id="contact-book-date-display">2023年10月27日 星期五</div>
+                    <button id="next-day-btn" class="action-btn date-nav-button">▶︎</button>
+                </div>
+                <div class="contact-book-orientation-controls">
+                </div>
+            </div>
+            <div class="contact-book-body">
+                <div class="contact-book-section important-info-section">
+                    <h3>重要資訊</h3>
+                    <div class="important-info-input-group">
+                        <select id="predefined-info-select" class="predefined-info-select">
+                            <option value="">請選擇重要資訊</option>
+                            <!-- Options will be dynamically populated by JS -->
+                        </select>
+                        <textarea id="important-info-textarea" placeholder="例如：明天帶美術用具、穿體育服裝..."></textarea>
+                    </div>
+                </div>
+                <div class="contact-book-section homework-section">
+                    <h3>回家作業</h3>
+                    <div class="homework-input-group">
+                        <select id="predefined-homework-select" class="predefined-homework-select">
+                            <option value="">請選擇回家作業</option>
+                            <!-- Options will be dynamically populated by JS -->
+                        </select>
+                        <textarea id="homework-textarea" placeholder="例如：國語習作第八課、數學習作P.30..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-book-footer">
+                <button id="save-contact-book-btn" class="action-btn primary-btn">保存</button>
+                <button id="show-blackboard-btn" class="action-btn">顯示</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blackboard Display Modal Structure -->
+    <div id="blackboard-modal" class="modal">
+        <div class="modal-content blackboard-content">
+            <span class="close-button" id="blackboard-modal-close">&times;</span>
+            <div class="blackboard-header">
+                <h2>今日聯絡簿</h2>
+                <div id="blackboard-date-display"></div>
+            </div>
+            <div class="blackboard-body">
+                <div class="blackboard-section">
+                    <h3>重要資訊</h3>
+                    <div id="blackboard-important-info-display" class="blackboard-text-content"></div>
+                </div>
+                <div class="blackboard-section">
+                    <h3>回家作業</h3>
+                    <div id="blackboard-homework-display" class="blackboard-text-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homework Check Modal Structure -->
+    <div id="homework-check-modal" class="modal">
+        <div class="modal-content homework-check-modal-content">
+            <span class="close-button" id="homework-check-modal-close">&times;</span>
+            <h2>✅ 作業檢查</h2>
+            <div class="homework-check-header">
+                <div class="homework-check-date-nav">
+                    <button id="homework-check-prev-day-btn" class="action-btn date-nav-button">◀︎</button>
+                    <div id="homework-check-date-display"></div>
+                    <button id="homework-check-next-day-btn" class="action-btn date-nav-button">▶︎</button>
+                </div>
+            </div>
+            <div class="homework-check-body">
+                <div class="homework-check-assignment-display">
+                    <label for="homework-to-check-select">今日作業：</label>
+                    <select id="homework-to-check-select" class="predefined-homework-select">
+                        <option value="">請選擇或查看前一天聯絡簿</option>
+                    </select>
+                </div>
+                <div id="homework-check-students-container" class="homework-check-grid">
+                    <!-- Student cells will be dynamically generated here -->
+                    <p class="no-students-message">班級中沒有學生。</p>
+                </div>
+            </div>
+            <div class="homework-check-footer">
+                <button id="save-homework-check-btn" class="action-btn primary-btn">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal Structure -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content settings-modal-content">
+            <span class="close-button" id="settings-modal-close">&times;</span>
+            <h2>⚙️ 系統設定</h2>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <h3>特殊表現記錄預設選項</h3>
+                    <textarea id="predefined-behaviors-input" placeholder="每行一個選項，例如：&#10;主動協助同學&#10;積極發言"></textarea>
+                    <p class="setting-hint">這些選項會出現在每位學生的「特殊表現記錄」下拉選單中。</p>
+                </div>
+                <div class="settings-section">
+                    <h3>連絡簿重要資訊預設選項</h3>
+                    <textarea id="predefined-info-input" placeholder="每行一個選項，例如：&#10;明天帶美術用具&#10;下週一體育課請穿體育服"></textarea>
+                    <p class="setting-hint">這些選項會出現在「連絡簿」的「重要資訊」下拉選單中。</p>
+                </div>
+                <div class="settings-section">
+                    <h3>連絡簿回家作業預設選項</h3>
+                    <textarea id="predefined-homework-input" placeholder="每行一個選項，例如：&#10;國語第1課生字&#10;數學習作P3~P5"></textarea>
+                    <p class="setting-hint">這些選項會出現在「連絡簿」的「回家作業」下拉選單中。</p>
+                </div>
+            </div>
+            <div class="settings-footer">
+                <button id="save-settings-btn" class="action-btn primary-btn">儲存設定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
