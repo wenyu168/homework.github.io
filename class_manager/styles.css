@@ -1,0 +1,1651 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    color: #4a5568;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* small logo icon (graduation cap) before title */
+.logo-icon {
+    width: 28px;
+    height: 28px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.header-right-group {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 2rem; /* Space between total score and class info */
+}
+
+.class-total-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3182ce; /* A distinct color for the total score */
+    padding: 0.25rem 0.75rem;
+    background: rgba(197, 226, 255, 0.4); /* Light background */
+    border-radius: 6px;
+    border: 1px solid #90cdf4; /* Light border */
+}
+
+.class-info {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.toolbar {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-end; /* Pushes the right-aligned buttons to the right */
+    align-items: flex-start; /* Align items to the top to prevent stretching of buttons */
+}
+
+/* New container for left-aligned groups */
+.left-toolbar-group {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    gap: 1rem; /* Space between class management and utility buttons */
+    margin-right: auto; /* Push this group to the left */
+}
+
+/* Adjust the class management group for new layout */
+.class-management-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap within this group */
+    gap: 1rem; /* Space between select and button */
+}
+
+/* New style for the utility buttons group */
+.utility-buttons-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap within this group */
+    gap: 1rem;
+}
+
+/* NEW: Style for the display options group */
+.display-options-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.display-options-group label {
+    font-size: 0.95rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Adjust the specific select for class selection */
+#class-select {
+    min-width: 150px; /* Give it some width */
+    padding: 0.5rem 1rem;
+    border: 2px solid #667eea;
+    background: white; /* Make background white for better visibility */
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-family: 'Noto Sans TC', sans-serif;
+    -webkit-appearance: none; /* Remove default arrow */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+}
+
+#class-select:hover {
+    background: #e0e7ff; /* Lighter background on hover */
+}
+
+#class-select:focus {
+    outline: none;
+    border-color: #5a67d8;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* NEW: Styles for the students per row select. Reusing action-btn styles */
+#students-per-row-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-family: 'Noto Sans TC', sans-serif;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    min-width: 70px; /* Smaller width for number selection */
+}
+
+#students-per-row-select:hover {
+    background: #e0e7ff;
+}
+
+#students-per-row-select:focus {
+    outline: none;
+    border-color: #5a67d8;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #667eea;
+    background: transparent;
+    color: #667eea;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.action-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* New style for delete button to make it visually distinct */
+.action-btn.delete-btn {
+    border-color: #dc3545; /* Red border */
+    color: #dc3545; /* Red text */
+}
+
+.action-btn.delete-btn:hover {
+    background: #dc3545; /* Red background on hover */
+    color: white;
+}
+
+.students-grid {
+    display: grid;
+    /* Default is 4 columns. Updated by JS */
+    grid-template-columns: repeat(4, minmax(280px, 1fr)); /* Default to 4 columns */
+    gap: 1.5rem;
+    justify-content: center; /* center the grid block when columns don't fill the container */
+}
+
+/* NEW: Grid column configurations based on data attribute or classes */
+.students-grid[data-cols="2"] {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+}
+
+.students-grid[data-cols="3"] {
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+}
+
+.students-grid[data-cols="4"] {
+    grid-template-columns: repeat(4, minmax(280px, 1fr));
+}
+
+.students-grid[data-cols="5"] {
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+}
+
+.students-grid[data-cols="6"] {
+    grid-template-columns: repeat(6, minmax(280px, 1fr));
+}
+
+.student-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* New: position delete button at top-right of the student card */
+.student-card .delete-student {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: none;
+}
+.student-card .delete-student:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.student-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.student-card.selected {
+    border: 3px solid #667eea;
+    transform: scale(1.02);
+}
+
+/* New style for drawn students */
+.student-card.drawn {
+    border: 3px solid #ffc107; /* Brighter yellow border */
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.7); /* Stronger glow */
+    animation: highlightPulse 1.5s infinite alternate; /* Continuous subtle pulse */
+}
+
+@keyframes highlightPulse {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.9);
+        transform: scale(1.01);
+    }
+}
+
+.student-card.on-leave {
+    opacity: 0.7; /* Dim the card slightly */
+    filter: grayscale(50%); /* Desaturate to indicate inactive state */
+    border: 3px dashed #a0a0a0; /* Use a dashed grey border */
+    /* pointer-events: none; Remove this to allow card selection */
+}
+
+.student-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: bold;
+}
+
+.student-name {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.student-score {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.student-score.positive {
+    color: #4CAF50;
+}
+
+.student-score.negative {
+    color: #f44336;
+}
+
+.student-score.neutral {
+    color: #666;
+}
+
+/* NEW: Styles for Homework Summary on Student Cards */
+.homework-summary {
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex; /* Use flexbox to align items */
+    flex-wrap: wrap; /* Allow items to wrap if too many */
+    justify-content: center; /* Center items horizontally */
+    gap: 0.5rem; /* Space between items */
+    min-height: 25px; /* Ensure some height even if empty */
+    align-items: center;
+}
+
+.homework-summary span {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.homework-not-submitted {
+    background-color: #fcebeb; /* Light red background */
+    color: #cc0000; /* Darker red text */
+    border: 1px solid #ffcccc;
+}
+
+.homework-to-be-corrected {
+    background-color: #fff9e6; /* Light orange background */
+    color: #e65100; /* Darker orange text */
+    border: 1px solid #ffe0b2;
+}
+
+.homework-all-clear {
+    background-color: #e6f7ea; /* Light green background */
+    color: #2e7d32; /* Darker green text */
+    border: 1px solid #c8e6c9;
+}
+
+.student-status {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.student-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem; /* Slightly reduced gap to fit three buttons */
+    margin-bottom: 1rem;
+}
+
+.student-action-btn {
+    padding: 0.75rem 1rem; /* Adjusted padding */
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem; /* Slightly smaller font size */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 75px; /* Fixed width for consistency for all three buttons */
+}
+
+.student-action-btn.positive {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.student-action-btn.negative {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+}
+
+/* New styles for leave/return button */
+.student-action-btn.leave-toggle {
+    background: linear-gradient(135deg, #a0a0a0, #808080); /* Grey for "請假" */
+    color: white;
+}
+
+.student-action-btn.leave-toggle.return {
+    background: linear-gradient(135deg, #4299e1, #3182ce); /* Blue for "返校" */
+    color: white;
+}
+
+.student-action-btn:hover:not([disabled]) { /* Apply hover only if not disabled */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.student-action-btn:active:not([disabled]) { /* Apply active only if not disabled */
+    transform: translateY(0);
+}
+
+/* Style for disabled buttons */
+.student-action-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.student-notes-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* New styles for notes header and toggle checkbox */
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Space between header and the toggled content */
+    padding-bottom: 0.5rem; /* Padding below for a visual separator */
+    border-bottom: 1px dashed #e2e8f0; /* Optional: A subtle line */
+}
+
+.student-notes-section h4 {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0; /* Reset margin-bottom as it's now handled by .notes-header */
+}
+
+.toggle-notes-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #555;
+    cursor: pointer;
+}
+
+.toggle-notes-checkbox {
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transform: scale(1.1); /* Slightly larger checkbox */
+}
+
+/* Class to hide the notes content by default */
+.notes-content-wrapper.hidden {
+    display: none;
+}
+
+.notes-input-group {
+    display: flex;
+    flex-direction: column; /* Stack select and textarea vertically */
+    gap: 0.5rem; /* Space between select and textarea */
+    margin-top: 0; /* Reset margin-top as it's now handled by .notes-header */
+}
+
+.predefined-notes-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    background: #fdfdfd;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+    -webkit-appearance: none; /* Remove default browser styling for select */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+}
+
+.predefined-notes-select:focus:not([disabled]) {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.predefined-notes-select[disabled] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
+/* NEW: Wrapper for predefined select and textarea */
+.important-info-input-group,
+.homework-input-group { /* Apply to homework-input-group as well */
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Space between select and textarea */
+}
+
+/* NEW: Styles for the predefined info select */
+.predefined-info-select,
+.predefined-homework-select { /* Apply to homework select as well */
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.95rem;
+    background: #fdfdfd;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+    -webkit-appearance: none; /* Remove default browser styling for select */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+}
+
+.predefined-info-select:focus:not([disabled]),
+.predefined-homework-select:focus:not([disabled]) { /* Apply to homework select as well */
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.predefined-info-select[disabled],
+.predefined-homework-select[disabled] { /* Apply to homework select as well */
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
+.student-notes-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    resize: vertical;
+    background: #fdfdfd;
+    transition: border-color 0.3s ease;
+}
+
+.student-notes-input:focus:not([disabled]) { /* Focus style only if not disabled */
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Style for disabled notes input */
+.student-notes-input[disabled] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+}
+
+.recent-actions {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1rem;
+}
+
+.recent-actions h4 {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.action-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+}
+
+.action-time {
+    color: #999;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+/* NEW: Styles for the Drawing Modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 200; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+    backdrop-filter: blur(5px); /* Blurred background */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    animation: fadeInScale 0.3s ease-out forwards;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal h2 {
+    color: #4a5568;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+#drawing-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px dashed #e2e8f0; /* Optional: A subtle line */
+}
+
+#drawing-controls p {
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 500;
+}
+
+#drawing-controls p span {
+    font-weight: 700;
+    color: #667eea;
+}
+
+.drawing-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.drawing-input-group label {
+    font-size: 1rem;
+    color: #4a5568;
+}
+
+#num-to-draw {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    width: 80px;
+    text-align: center;
+    font-size: 1rem;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+#num-to-draw:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.drawing-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.drawing-buttons .primary-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+}
+
+.drawing-buttons .primary-btn:hover {
+    background: linear-gradient(135deg, #5a67d8, #664190);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.drawing-buttons .secondary-btn {
+    background: #e2e8f0;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+}
+
+.drawing-buttons .secondary-btn:hover {
+    background: #cbd5e0;
+    color: #2d3748;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.drawing-buttons button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#drawing-results {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#drawing-results h3, #drawing-history h4 {
+    font-size: 1.2rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+#drawn-student-display {
+    min-height: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px dashed #a0aec0;
+    border-radius: 12px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #3182ce;
+    background-color: #e0e7ff;
+    text-align: center;
+}
+
+#drawn-student-display .drawn-name {
+    animation: pulseHighlight 1s ease-out forwards; /* Apply animation on new names */
+}
+
+@keyframes pulseHighlight {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#drawn-student-display .placeholder-text {
+    font-size: 1.2rem;
+    color: #777;
+    font-weight: 400;
+}
+
+#drawing-history {
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    flex-grow: 1; /* Allow history to take available space */
+    overflow-y: auto; /* Scroll if too many items */
+    max-height: 200px; /* Max height for the list */
+}
+
+#drawn-students-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+#drawn-students-list li {
+    background-color: #bee3f8;
+    color: #2b6cb0;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Countdown Modal specific styles */
+.countdown-modal-content {
+    /* No specific max-width/height, it inherits from .modal-content max-width: 600px; */
+}
+
+#countdown-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Standard gap for modal sections */
+    align-items: center; /* Center items horizontally within settings */
+}
+
+.countdown-input-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between minutes/seconds sections */
+}
+
+.countdown-input-wrapper {
+    display: flex;
+    align-items: stretch; /* Stretch children vertically to fill available height */
+    gap: 0.1rem; /* Make gap smaller for a tighter, more integrated look */
+}
+
+.countdown-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Space out the increment/decrement buttons vertically */
+}
+
+.countdown-control-btn {
+    background: #e0e7ff;
+    border: 1px solid #a0c4ff;
+    color: #3182ce;
+    padding: 0; /* Remove padding, rely on flexbox for internal SVG centering */
+    font-size: 0.8rem; /* Smaller button text for up/down */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex; /* To center SVG */
+    align-items: center;
+    justify-content: center;
+    line-height: 1; /* Ensure SVG doesn't make button too tall */
+    height: 50%; /* Each button takes half the height of the controls container */
+}
+
+.countdown-control-btn svg {
+    width: 1em; /* Control SVG size */
+    height: 1em;
+}
+
+.countdown-control-btn:hover {
+    background: #c5d7f7;
+}
+
+.countdown-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#countdown-minutes-input,
+#countdown-seconds-input {
+    width: 60px; /* Make it more compact by default */
+    padding: 0.75rem 0.5rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+#countdown-minutes-input:focus,
+#countdown-seconds-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+#countdown-display {
+    font-size: 4rem; /* Large display for time */
+    font-weight: 700;
+    color: #3182ce;
+    background-color: #e0e7ff;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    margin: 1.5rem 0; /* Space around the display */
+    min-width: 200px;
+    text-align: center;
+    border: 2px solid #a0c4ff;
+}
+
+.countdown-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Contact Book Modal specific styles */
+.contact-book-modal-content {
+    max-width: 800px; /* Adjusted max-width for better portrait fit */
+    max-height: 90vh;
+    padding: 30px;
+    gap: 1.5rem;
+    display: flex; /* Ensure flex for stacking header/body/footer */
+    flex-direction: column;
+}
+
+/* Default portrait styling for the body */
+.contact-book-modal-content .contact-book-body {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr; /* Stacked columns for portrait by default */
+    gap: 1.5rem;
+    overflow-y: auto;
+}
+
+.contact-book-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.contact-book-header .contact-book-date-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem; /* Space between buttons and date */
+}
+
+#contact-book-date-display {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #3182ce;
+    min-width: 250px; /* Ensure space for full date text */
+}
+
+.date-nav-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 1.2rem;
+    background: #e0e7ff;
+    border: 1px solid #a0c4ff;
+    color: #3182ce;
+}
+
+.date-nav-button:hover {
+    background: #c5d7f7;
+    color: #2a65a3;
+}
+
+/* Styles for orientation buttons */
+.contact-book-orientation-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem; /* Space from date nav */
+}
+
+.contact-book-orientation-controls .action-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.contact-book-section h3 {
+    font-size: 1.2rem;
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.contact-book-section textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1rem;
+    resize: vertical;
+    background: #fdfdfd;
+    transition: border-color 0.3s ease;
+}
+
+.contact-book-section textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.contact-book-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.contact-book-footer .action-btn.primary-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+}
+
+.contact-book-footer .action-btn.primary-btn:hover {
+    background: linear-gradient(135deg, #5a67d8, #664190);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* NEW: Style for the message when a class has no students */
+.no-students-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+    padding: 2rem;
+    border: 2px dashed #a0aec0;
+    border-radius: 12px;
+    background-color: #f0f4f8;
+    margin-top: 2rem;
+    grid-column: 1 / -1; /* Make it span all columns in the grid */
+}
+
+.blackboard-content {
+    max-width: 90vw; /* Make it wider, almost full screen */
+    max-height: 90vh; /* Make it taller */
+    width: 90vw; /* Default width */
+    height: 90vh; /* Default height */
+    padding: 2rem;
+    background-color: #2b3a4a; /* Dark, blackboard-like background */
+    color: #e0e0e0; /* Light text for chalk effect */
+    border: 5px solid #8B4513; /* Wood-like border */
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow: hidden; /* Prevent content overflow for the main modal content */
+}
+
+.blackboard-content .close-button {
+    color: #e0e0e0;
+}
+
+.blackboard-content .close-button:hover,
+.blackboard-content .close-button:focus {
+    color: #ffffff;
+}
+
+.blackboard-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed #6c7a89; /* Chalk-like dashed line */
+}
+
+.blackboard-header h2 {
+    font-size: 3.5rem; /* Very large title */
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* Subtle text shadow */
+}
+
+#blackboard-date-display {
+    font-size: 2.5rem; /* Large date */
+    font-weight: 500;
+    color: #b0c4de; /* Slightly different color for date */
+    margin-top: 1rem;
+}
+
+.blackboard-body {
+    flex-grow: 1; /* Allow body to take available space */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for info and homework */
+    gap: 2rem;
+    overflow-y: auto; /* Scroll if content overflows vertically */
+    padding-right: 1rem; /* Padding for scrollbar */
+}
+
+.blackboard-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align section titles to the left */
+    gap: 0.75rem;
+}
+
+.blackboard-section h3 {
+    font-size: 2rem; /* Large section titles */
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #99aab5; /* Subtle underline */
+}
+
+.blackboard-text-content {
+    font-size: 1.5rem; /* Large content text */
+    line-height: 1.8; /* Good line height for readability */
+    white-space: pre-wrap; /* Preserve whitespace and break lines */
+    text-align: left;
+    color: #e0e0e0;
+    flex-grow: 1;
+    width: 100%; /* Ensure it takes full width of its container */
+    overflow-wrap: break-word; /* Break long words */
+}
+
+/* NEW: Homework Check Modal specific styles */
+.homework-check-modal-content {
+    max-width: 700px; /* Adjusted max-width for better fit */
+    max-height: 90vh;
+    padding: 30px;
+    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.homework-check-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.homework-check-date-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+#homework-check-date-display {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #3182ce;
+    min-width: 250px;
+}
+
+.homework-check-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    gap: 1rem; /* Space between assignment display and student container */
+}
+
+/* NEW: Styles for the homework check grid container */
+.homework-check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Responsive grid for student cells */
+    gap: 10px; /* Gap between cells */
+    padding: 10px;
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    min-height: 150px; /* Ensure some height even if empty */
+}
+
+.homework-student-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 5px; /* Smaller padding for compact cells */
+    border-radius: 6px;
+    font-size: 0.85rem; /* Smaller font size */
+    font-weight: 500;
+    color: white; /* White text for contrast on colored backgrounds */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    text-align: center;
+    user-select: none; /* Prevent text selection on click */
+    height: 50px; /* Fixed height for consistent grid */
+    overflow: hidden; /* Hide overflowing names */
+    white-space: nowrap; /* Prevent name wrapping */
+    text-overflow: ellipsis; /* Add ellipsis if name overflows */
+}
+
+.homework-student-cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Homework Status Colors */
+.homework-student-cell.status-submitted {
+    background-color: #4CAF50; /* Green */
+}
+
+.homework-student-cell.status-not-submitted {
+    background-color: #f44336; /* Red */
+}
+
+.homework-student-cell.status-to-be-corrected {
+    background-color: #FF9800; /* Orange */
+}
+
+/* NEW: Style for disabled homework cells when no homework is selected */
+.homework-student-cell.disabled-for-homework {
+    opacity: 0.6;
+    background-color: #e0e0e0; /* Grey background */
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.homework-student-cell.disabled-for-homework:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.homework-check-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+/* NEW: Styles for the homework check assignment display */
+.homework-check-assignment-display {
+    margin-bottom: 15px; /* Space between homework dropdown and student grid */
+    padding: 10px 15px;
+    background-color: #f8faff;
+    border: 1px solid #e0e7ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.homework-check-assignment-display label {
+    font-size: 1rem;
+    color: #4a5568;
+    font-weight: 500;
+    flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+/* Reuse existing predefined-homework-select styles for consistency */
+#homework-to-check-select {
+    flex-grow: 1; /* Allow select to take available space */
+    min-width: 150px; /* Ensure it has a reasonable min-width */
+}
+
+/* NEW: Settings Modal responsiveness */
+.settings-modal-content {
+    max-width: 600px;
+    max-height: 90vh;
+    padding: 30px;
+    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px; /* For scrollbar */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.settings-section {
+    background-color: #f8faff;
+    border: 1px solid #e0e7ff;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.settings-section h3 {
+    font-size: 1.2rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.settings-section textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.95rem;
+    resize: vertical;
+    background: #fdfdfd;
+    transition: border-color 0.3s ease;
+}
+
+.settings-section textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.setting-hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
+    line-height: 1.4;
+}
+
+.settings-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header-right-group {
+        flex-direction: column; /* Stack total score and class info vertically */
+        gap: 0.5rem;
+    }
+
+    .class-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .toolbar-actions {
+        flex-direction: column;
+        align-items: stretch; /* Stretch items to fill container */
+    }
+    
+    .left-toolbar-group {
+        width: 100%; /* Take full width on small screens */
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .class-management-group,
+    .utility-buttons-group {
+        flex-direction: column; /* Stack buttons vertically within these groups */
+        gap: 0.5rem;
+    }
+
+    /* NEW: Display options group on small screens */
+    .display-options-group {
+        flex-direction: row; /* Keep label and select inline */
+        justify-content: center; /* Center them */
+        width: 100%;
+        margin: 0.5rem 0; /* Adjust margin for spacing */
+    }
+
+    /* Make all buttons within these groups take full width on small screens */
+    .class-management-group > *,
+    .utility-buttons-group > * {
+        width: 100%;
+    }
+
+    #class-select {
+        width: 100%; /* Full width for select */
+    }
+
+    #students-per-row-select {
+        flex-grow: 1; /* Allow select to grow */
+        max-width: 100px; /* Keep it relatively small */
+    }
+
+    .students-grid {
+        grid-template-columns: 1fr; /* On small screens, always 1 column */
+        justify-content: center; /* ensure centered on small screens too */
+    }
+    .students-grid[data-cols="2"],
+    .students-grid[data-cols="3"],
+    .students-grid[data-cols="4"],
+    .students-grid[data-cols="5"],
+    .students-grid[data-cols="6"] {
+        grid-template-columns: 1fr; /* Override with 1 column for small screens */
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .modal h2 {
+        font-size: 1.5rem;
+    }
+
+    #drawn-student-display {
+        font-size: 1.5rem;
+    }
+
+    .drawing-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .drawing-buttons button {
+        width: 100%;
+    }
+
+    /* Countdown Modal responsiveness */
+    .countdown-input-group {
+        flex-wrap: wrap; /* Allow inputs to wrap */
+        justify-content: center;
+        width: 100%;
+        gap: 1rem; /* Adjust gap for smaller screens */
+    }
+    
+    .countdown-input-wrapper {
+        gap: 0.25rem; /* Smaller gap in wrapper on mobile for better touch target */
+    }
+
+    .countdown-input-group label {
+        flex-basis: 100%; /* Labels take full width */
+        text-align: center;
+        margin-bottom: 0.25rem;
+    }
+
+    #countdown-display {
+        font-size: 3rem; /* Smaller font on mobile */
+        padding: 0.8rem 1.5rem;
+    }
+
+    .countdown-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .countdown-buttons button {
+        width: 100%;
+    }
+
+    /* Contact Book Modal responsiveness */
+    .contact-book-modal-content {
+        width: 95%;
+        padding: 20px;
+        gap: 1rem;
+    }
+
+    .contact-book-modal-content .contact-book-header {
+        flex-direction: column; /* Stack header elements */
+        align-items: center;
+        padding-bottom: 1rem;
+    }
+    .contact-book-modal-content .contact-book-date-nav {
+        flex-direction: row; /* Keep date nav inline */
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem; /* Space between date nav and orientation controls */
+    }
+
+    .contact-book-modal-content .contact-book-body {
+        grid-template-columns: 1fr; /* Always stack content sections on small screens */
+        gap: 1.5rem;
+    }
+    
+    .important-info-input-group,
+    .homework-input-group { /* Ensure it still stacks vertically on small screens */
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #contact-book-date-display {
+        font-size: 1.8rem; /* Smaller magnified date on mobile */
+        min-width: unset; /* Allow it to shrink */
+        flex-grow: 1;
+    }
+
+    .date-nav-button {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .contact-book-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-book-section textarea {
+        min-height: 100px;
+        font-size: 0.95rem;
+    }
+
+    .contact-book-footer {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        gap: 0.75rem;
+    }
+    .contact-book-footer .action-btn {
+        width: 100%; /* Make buttons full width */
+    }
+
+    .blackboard-content {
+        width: 95vw;
+        height: 95vh;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .blackboard-header h2 {
+        font-size: 2.5rem;
+    }
+
+    #blackboard-date-display {
+        font-size: 1.8rem;
+    }
+
+    .blackboard-body {
+        grid-template-columns: 1fr; /* Stack sections on small screens */
+        gap: 1.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .blackboard-section h3 {
+        font-size: 1.5rem;
+    }
+
+    .blackboard-text-content {
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+
+    /* NEW: Homework Check Modal responsiveness */
+    .homework-check-modal-content {
+        width: 95%;
+        padding: 20px;
+        gap: 1rem;
+    }
+
+    #homework-check-date-display {
+        font-size: 1.8rem;
+        min-width: unset;
+        flex-grow: 1;
+    }
+
+    .homework-check-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Responsive grid for student cells */
+        gap: 10px; /* Gap between cells */
+        padding: 10px;
+        background-color: #f0f4f8;
+        border-radius: 8px;
+        min-height: 150px; /* Ensure some height even if empty */
+    }
+
+    /* NEW: Homework assignment display responsiveness */
+    .homework-check-assignment-display {
+        flex-direction: column; /* Stack label and select vertically on small screens */
+        align-items: flex-start; /* Align text to left */
+        gap: 0.5rem;
+    }
+
+    .homework-check-assignment-display label {
+        width: 100%;
+        text-align: left;
+    }
+
+    #homework-to-check-select {
+        width: 100%; /* Full width for select on small screens */
+        min-width: unset;
+    }
+
+    /* NEW: Settings Modal responsiveness */
+    .settings-modal-content {
+        width: 95%;
+        padding: 20px;
+        gap: 1rem;
+    }
+}
